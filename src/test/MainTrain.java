@@ -33,7 +33,7 @@ public class MainTrain {
 				i++;
 			}
 			if(j<11)
-				//בדיקה בדיקה
+				//בדיקה בדיקה234
 				System.out.println("wrong output size (-"+((11-j)*8)+")");
 			st.close();
 			ex.close();
