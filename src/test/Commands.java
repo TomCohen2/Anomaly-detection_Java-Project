@@ -23,6 +23,9 @@ public class Commands {
 		// you may add default methods here
 	}
 	
+	//this is a test
+	
+	
 	//Commands Members:
 	DefaultIO dio;
 	private SharedState sharedState=new SharedState();
