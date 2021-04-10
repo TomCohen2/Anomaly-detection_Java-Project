@@ -3,6 +3,8 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/PTM2Project.iml" filepath="$PROJECT_DIR$/PTM2Project.iml" />
+      <module fileurl="file://$PROJECT_DIR$/test.iml" filepath="$PROJECT_DIR$/test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../z-score/z-score.iml" filepath="$PROJECT_DIR$/../z-score/z-score.iml" />
     </modules>
   </component>
 </project>

@@ -72,16 +72,50 @@ public class StatLib {
 	}
 
 	// returns the deviation between point p and the line
-	public static float dev(Point p,Line l){
-		return Math.abs(l.f(p.x)-p.y);
-	}
-	
+	public static float dev(Point p,Line l){ return Math.abs(l.f(p.x)-p.y); }
+
+	// convert two arrays to an array of points
 	public static Point[] arrToPoints(float[]x, float[]y)
 	{
 		Point[] points = new Point[x.length];
 		for (int i=0; i<x.length;i++)
 			points[i] = new Point(x[i],y[i]);
 		return points;
+	}
+	// calculate the standard deviation
+ 	public static float standardDeviation(float[] x){ return (float) Math.pow(var(x),0.5);	}
+
+	// calculate the normalized value
+	public static float normalization(float x,float avX,float sDevX){
+		return Math.abs(x-avX)/sDevX;
+	}
+
+	//return normalized values array for given array
+	public static float[] normalizationArr(float[] x){
+		float sDevX = standardDeviation(x);
+		float[] avgArr = new float[x.length];
+		float[] res = new float[x.length];
+		avgArr[0] = 0;
+		res[0] = 0;
+		float sum =x[0];
+		for (int i =1;i<x.length;i++) {
+			avgArr[i] = sum/i;
+			sum+=x[i];
+		}
+		for(int i=1;i<x.length;i++){
+			res[i] = normalization(x[i],avgArr[i],sDevX);
+		}
+		return res;
+	}
+
+	//return the Max value of an array
+	public static float getMax(float[] x){
+		float max =0;
+		for(int i=0;i<x.length-1;i++){
+			if(max<x[i])
+				max = x[i];
+		}
+		return max;
 	}
 
 

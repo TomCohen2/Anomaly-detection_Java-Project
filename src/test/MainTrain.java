@@ -102,7 +102,9 @@ public class MainTrain {
 		} catch (InterruptedException e) {}		
 		server.stop();
 		check("output.txt", "expectedOutput.txt");
-		System.out.println("done");
+		System.out.println("done1");
+		TimeSeries ts = new TimeSeries("trainFile1.csv");
+
 	}
 
 }

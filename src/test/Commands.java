@@ -318,7 +318,7 @@ public class Commands {
 		void writeToFile(String string) {
 			 try {
 				BufferedWriter out = new BufferedWriter(new FileWriter("output.txt",true));
-
+				
 				out.write(string+"\n");
 				out.close();
 			} catch (IOException e) {
