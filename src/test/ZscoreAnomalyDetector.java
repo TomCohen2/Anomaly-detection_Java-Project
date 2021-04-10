@@ -3,19 +3,19 @@ package test;
 import java.util.ArrayList;
 import java.util.List;
 
-public class zScore implements TimeSeriesAnomalyDetector{
+public class ZscoreAnomalyDetector implements TimeSeriesAnomalyDetector{
 	float[] zScores;
 	@Override
 	public void learnNormal(TimeSeries ts) {
 		zScores = new float[ts.getNumOfFeatures()];
 		for(int i=0;i<ts.getNumOfFeatures();i++) {
-		for(int j=0;j<ts.data[0].length;j++)
-			System.out.println(ts.data[i][j] + ",");
-		System.out.println("\n");
+			for(int j=0;j<ts.data[0].length;j++)
+				System.out.println(ts.data[i][j]);
+			System.out.println("\n");
 		}
 		for(int i=0;i<ts.getNumOfFeatures();i++) {
 			zScores[i] = findTx(ts.data[i]);
-			System.out.println("Testing zScores[i] = " + zScores[i]);
+			//System.out.println("Testing zScores[i] = " + zScores[i]);
 		}
 	}
 
@@ -25,7 +25,8 @@ public class zScore implements TimeSeriesAnomalyDetector{
 		
 		for(int i=0;i<ts.getNumOfFeatures();i++) {
 			for(int j=0;j<ts.data[i].length;j++) {
-				if (ts.data[i][j]>zScores[i]) {
+				//if (ts.data[i][j]>zScores[i]) {
+					if(zFunc(j, ts.data[i])>zScores[i]) {
 					if(alarms == null)
 						alarms = new ArrayList<AnomalyReport>();
 					alarms.add(new AnomalyReport("Feature number " + i,j));

@@ -73,13 +73,14 @@ public class MyMain {
 			generateTrainCSV(a1,b1,a2,b2);
 			TimeSeries ts=new TimeSeries("trainFile1.csv");
 			SimpleAnomalyDetector ad=new SimpleAnomalyDetector();
-			zScore zad = new zScore();
+			ZscoreAnomalyDetector zad = new ZscoreAnomalyDetector();
 			ad.learnNormal(ts);
 			zad.learnNormal(ts);
 			for (float temp : zad.zScores) {
 				System.out.println(temp);
 			}
-			System.out.println(zad.zScores);
+			System.out.println(zad.zScores + "\n");
+			
 			List<CorrelatedFeatures> cf=ad.getNormalModel();
 	//
 			if(cf.size()!=2)
@@ -96,19 +97,26 @@ public class MyMain {
 			System.out.println("Anomaly's at ind " + anomaly);
 			generateTestCSV(a1,b1,a2,b2,anomaly);
 			TimeSeries ts2=new TimeSeries("testFile1.csv");
-			List<AnomalyReport> reports = ad.detect(ts2);
+			//List<AnomalyReport> reports = ad.detect(ts2);
 			List<AnomalyReport> myReports = zad.detect(ts2);
 			boolean anomlyDetected=false;
 			int falseAlarms=0;
-			for(AnomalyReport ar : reports) {
-				if(ar.description.equals("A-C") && ar.timeStep == anomaly)
-					anomlyDetected=true;
-				else
-					falseAlarms++;
-			};
-			for(AnomalyReport ar : myReports)
+		//	for(AnomalyReport ar : reports) {
+		//		if(ar.description.equals("A-C") && ar.timeStep == anomaly)
+		//			anomlyDetected=true;
+		//		else
+		//			falseAlarms++;
+		//	};
+			
+			System.out.println("Checking if the anomaly was found");
+			for(AnomalyReport ar : myReports) {
 				if(ar.timeStep != anomaly)
-					System.out.println("Too Bad! Try Again!");
+					System.out.println("Too Bad! " + "Anomaly at timestep " + anomaly + "\t Detected timestep " + ar.timeStep + "\t Try Again!");
+				if(ar.timeStep == anomaly) {
+					anomlyDetected = true;
+					System.out.println("Found it!");
+			}
+			}
 	
 			if(!anomlyDetected)
 				System.out.println("the anomaly was not detected (-30)");
