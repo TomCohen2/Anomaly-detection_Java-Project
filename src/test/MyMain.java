@@ -76,10 +76,10 @@ public class MyMain {
 			ZscoreAnomalyDetector zad = new ZscoreAnomalyDetector();
 			ad.learnNormal(ts);
 			zad.learnNormal(ts);
-			for (float temp : zad.zScores) {
+			for (float temp : zad.TXtest[0]) {
 				System.out.println(temp);
 			}
-			System.out.println(zad.zScores + "\n");
+			System.out.println(zad.TXtest + "\n");
 			
 			List<CorrelatedFeatures> cf=ad.getNormalModel();
 	//

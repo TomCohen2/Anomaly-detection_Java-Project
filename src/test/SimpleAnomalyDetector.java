@@ -53,7 +53,7 @@ public class SimpleAnomalyDetector implements TimeSeriesAnomalyDetector {
 		for(CorrelatedFeatures c : corList )
 		{ 
 			float threshOffset = c.threshold*threshOffsetMul;
-			String str = c.feature1 + "-" + c.feature2;
+			String str = c.feature1 + "<->" + c.feature2;
 			Point [] points = StatLib.arrToPoints(ts.data[StatLib.whichIndex(c.feature1,ts)], ts.data[StatLib.whichIndex(c.feature2,ts)]);
 			for(int i=0;i<points.length;i++)
 			{

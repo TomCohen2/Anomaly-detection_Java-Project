@@ -95,6 +95,7 @@ public class StatLib {
 	}
 	
 	
+	
 	//Returns an array of dev value of each point to a line.
 	public static float[] devArr(Point[] points, Line l)
 	{
