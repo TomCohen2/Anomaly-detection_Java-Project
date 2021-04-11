@@ -9,7 +9,7 @@ public class MyAnomalyMain {
 		TimeSeries ts = new TimeSeries("reg_flight.csv");
 		TimeSeries ts2 = new TimeSeries("anomaly_flight.csv");		
 		//Linear Regression 
-		//Laerning phase
+		//Learning phase
 		SimpleAnomalyDetector ad = new SimpleAnomalyDetector();
 		ad.learnNormal(ts);
 		List<CorrelatedFeatures> cf = ad.getNormalModel();
