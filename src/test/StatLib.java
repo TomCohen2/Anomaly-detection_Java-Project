@@ -16,6 +16,7 @@ public class StatLib {
 		return sum/count;
 	}
 	
+
 	// returns the variance of X and Y
 	public static float var(float[] x){
 		int len=x.length;
