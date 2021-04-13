@@ -18,7 +18,7 @@ public class ZscoreAnomalyDetector implements TimeSeriesAnomalyDetector{
 			//TX[i] = StatLib.findTx(ts.data[i], i);
 			for(int j=0;j<ts.data[0].length;j++) {
 				//System.out.println(ts.data[i][j]);// Displaying data (testing)
-				zScores[i][j] = zFunc(ts.data[i][j], means[i], stddev[i]);
+				zScores[i][j] = zFunc(ts.data[i][j], means[i], stddev[ts.numOfRows-1]);
 			//	System.out.println("TESTING " +zScores[i][j]);
 				checkWhatIsCurrentMax(zScores[i][j], i, j);
 			}

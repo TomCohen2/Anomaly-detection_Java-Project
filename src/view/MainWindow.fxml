@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.chart.CategoryAxis?>
 <?import javafx.scene.chart.LineChart?>
 <?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
@@ -38,11 +38,11 @@
    <center>
       <TabPane prefHeight="800.0" prefWidth="800.0" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
         <tabs>
-          <Tab text="Untitled Tab 1">
+          <Tab text="TrainFlight">
             <content>
               <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="0.0" minWidth="0.0" prefHeight="1200.0" prefWidth="1200.0">
                      <children>
-                        <LineChart fx:id="gd" layoutX="381.0" layoutY="14.0" prefHeight="341.0" prefWidth="418.0" title="Values over Time">
+                        <LineChart fx:id="trainVOT" layoutX="422.0" layoutY="14.0" prefHeight="350.0" prefWidth="350.0" title="Values over Time">
                           <xAxis>
                             <NumberAxis side="BOTTOM" fx:id="xAxis" />
                           </xAxis>
@@ -50,7 +50,7 @@
                             <NumberAxis fx:id="yAxis" side="LEFT" />
                           </yAxis>
                         </LineChart>
-                        <LineChart fx:id="gd2" layoutY="14.0" prefHeight="354.0" prefWidth="376.0" title="Z-Score &amp; Tx">
+                        <LineChart fx:id="trainZScoreTx" layoutX="34.0" layoutY="14.0" prefHeight="350.0" prefWidth="350.0" title="Z-Score &amp; Tx">
                           <xAxis>
                             <NumberAxis side="BOTTOM" fx:id="xAxis" />
                           </xAxis>
@@ -58,29 +58,105 @@
                             <NumberAxis fx:id="yAxis" side="LEFT" />
                           </yAxis>
                         </LineChart>
-                        <LineChart fx:id="gd3" layoutX="23.0" layoutY="395.0" prefHeight="346.0" prefWidth="368.0" title="Standard Deviation">
+                        <LineChart fx:id="trainSTDDev" layoutX="34.0" layoutY="395.0" prefHeight="350.0" prefWidth="350.0" title="Standard Deviation">
                           <xAxis>
-                            <NumberAxis fx:id="xAxis" side="BOTTOM" />
-                          </xAxis>
-                          <yAxis>
-                            <NumberAxis side="LEFT" />
-                          </yAxis>
-                        </LineChart>
-                        <LineChart fx:id="gd4" layoutX="400.0" layoutY="386.0" prefHeight="342.0" prefWidth="370.0" title="Means">
-                          <xAxis>
-                            <NumberAxis fx:id="xAxis" side="BOTTOM" />
+                            <NumberAxis side="BOTTOM" fx:id="xAxis" />
                           </xAxis>
                           <yAxis>
                             <NumberAxis fx:id="yAxis" side="LEFT" />
                           </yAxis>
                         </LineChart>
+                        <LineChart fx:id="trainMean" layoutX="422.0" layoutY="395.0" prefHeight="350.0" prefWidth="350.0" title="Mean">
+                          <xAxis>
+                            <NumberAxis side="BOTTOM" fx:id="xAxis" />
+                          </xAxis>
+                          <yAxis>
+                            <NumberAxis fx:id="yAxis" side="LEFT" />
+                          </yAxis>
+                        </LineChart>
+                        <Label layoutX="370.0" layoutY="5.0" text="Train Flight" />
                      </children>
                   </AnchorPane>
             </content>
           </Tab>
-          <Tab text="Untitled Tab 2">
+          <Tab text="TestFlight">
             <content>
-              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <LineChart fx:id="testZScore" layoutX="34.0" layoutY="14.0" prefHeight="350.0" prefWidth="350.0" title="Z-Scores">
+                          <xAxis>
+                            <NumberAxis fx:id="xAxis" side="BOTTOM" />
+                          </xAxis>
+                          <yAxis>
+                            <NumberAxis fx:id="yAxis" side="LEFT" />
+                          </yAxis>
+                        </LineChart>
+                        <LineChart fx:id="testVOT" layoutX="422.0" layoutY="14.0" prefHeight="350.0" prefWidth="350.0" title="Values over Time">
+                           <xAxis>
+                              <NumberAxis fx:id="xAxis" side="BOTTOM" />
+                           </xAxis>
+                           <yAxis>
+                              <NumberAxis fx:id="yAxis" side="LEFT" />
+                           </yAxis>
+                        </LineChart>
+                        <LineChart fx:id="testSTDDev" layoutX="34.0" layoutY="395.0" prefHeight="350.0" prefWidth="350.0" title="Standard Deviation">
+                           <xAxis>
+                              <NumberAxis fx:id="xAxis" side="BOTTOM" />
+                           </xAxis>
+                           <yAxis>
+                              <NumberAxis fx:id="yAxis" side="LEFT" />
+                           </yAxis>
+                        </LineChart>
+                        <LineChart fx:id="testMean" layoutX="422.0" layoutY="395.0" prefHeight="350.0" prefWidth="350.0" title="Mean">
+                           <xAxis>
+                              <NumberAxis fx:id="xAxis" side="BOTTOM" />
+                           </xAxis>
+                           <yAxis>
+                              <NumberAxis fx:id="yAxis" side="LEFT" />
+                           </yAxis>
+                        </LineChart>
+                        <Label layoutX="372.0" layoutY="5.0" text="Test Flight" />
+                     </children></AnchorPane>
+            </content>
+          </Tab>
+            <Tab text="Both">
+            <content>
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <LineChart fx:id="bothZScore"  layoutX="34.0" layoutY="14.0" prefHeight="350.0" prefWidth="350.0" title="Z-Scores">
+                          <xAxis>
+                            <NumberAxis fx:id="xAxis" side="BOTTOM" />
+                          </xAxis>
+                          <yAxis>
+                            <NumberAxis fx:id="yAxis" side="LEFT" />
+                          </yAxis>
+                        </LineChart>
+                        <LineChart fx:id="bothVOT" layoutX="422.0" layoutY="14.0" prefHeight="350.0" prefWidth="350.0" title="Values over Time">
+                           <xAxis>
+                              <NumberAxis fx:id="xAxis" side="BOTTOM" />
+                           </xAxis>
+                           <yAxis>
+                              <NumberAxis fx:id="yAxis" side="LEFT" />
+                           </yAxis>
+                        </LineChart>
+                        <LineChart fx:id="bothSTDDev" layoutX="34.0" layoutY="395.0" prefHeight="350.0" prefWidth="350.0" title="Standard Deviation">
+                           <xAxis>
+                              <NumberAxis fx:id="xAxis" side="BOTTOM" />
+                           </xAxis>
+                           <yAxis>
+                              <NumberAxis fx:id="yAxis" side="LEFT" />
+                           </yAxis>
+                        </LineChart>
+                        <LineChart fx:id="bothMean" layoutX="422.0" layoutY="395.0" prefHeight="350.0" prefWidth="350.0" title="Mean">
+                           <xAxis>
+                              <NumberAxis fx:id="xAxis" side="BOTTOM" />
+                           </xAxis>
+                           <yAxis>
+                              <NumberAxis fx:id="yAxis" side="LEFT" />
+                           </yAxis>
+                        </LineChart>
+                        <Label layoutX="387.0" layoutY="5.0" text="Both" />
+                     </children></AnchorPane>
             </content>
           </Tab>
         </tabs>
