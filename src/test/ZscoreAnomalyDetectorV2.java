@@ -23,7 +23,7 @@ public class ZscoreAnomalyDetectorV2 implements TimeSeriesAnomalyDetector{
 			calcMeans(means[i], ts.data[i]);
 			calcStdDev(stddev[i],ts.data[i],means[i]);
 			for(int j=0;j<ts.data[0].length;j++) {
-				zScores[i][j] = zFunc2(ts.data[i][j], means[i][j], stddev[i][ts.data[i].length-1]);
+				zScores[i][j] = zFunc(ts.data[i][j], means[i][j], stddev[i][ts.data[i].length-1]);
 				checkWhatIsCurrentMax(zScores[i][j], i, j);
 			}
 		}
@@ -37,12 +37,37 @@ public class ZscoreAnomalyDetectorV2 implements TimeSeriesAnomalyDetector{
 //			System.out.println("Feature " + i + ":");
 //			for(int j=0;j<ts.data[0].length;j++){
 //				System.out.println(zScores[i][j]);
-//				
 //			}
 //			System.out.println("");
 //		}
 	}
 
+	@Override
+	public List<AnomalyReport> detect(TimeSeries ts) {
+		testzScores = new float[ts.getNumOfFeatures()][ts.data[0].length];
+		List<AnomalyReport> alarms = new ArrayList<>();
+		testMeans = new float[ts.getNumOfFeatures()][ts.data[0].length]; // Holds means for each feature
+		testStddev = new float[ts.getNumOfFeatures()][ts.data[0].length]; // Holds standard deviation for each feature
+		for(int i=0;i<ts.getNumOfFeatures();i++) {
+			calcMeans(testMeans[i], ts.data[i]);
+			calcStdDev(testStddev[i],ts.data[i],testMeans[i]);
+			for(int j=0;j<ts.data[0].length;j++) {
+				testzScores[i][j] = zFunc(ts.data[i][j], testMeans[i][j], testStddev[i][ts.data[i].length-1]);
+				if(testzScores[i][j]>TXtest[i][j]){
+					alarms.add(new AnomalyReport("Feature number " + i + " Zscore = " + testzScores[i][j] + " TX = " + TXtest[i][j] ,j));
+				}
+			}
+		}
+//		System.out.println(testStddev[24][2173]);
+//		System.out.println(testMeans[24][2173]);
+		return alarms;
+	}
+	
+	public float zFunc(float x, float avg, float sd) {
+		if(sd == 0) return 0;
+		return (Math.abs((x-avg)))/sd;
+	}
+	
 	private void calcMeans2(float[] container, float[] data) {
 		float sum;
 		int j=0;
@@ -52,17 +77,7 @@ public class ZscoreAnomalyDetectorV2 implements TimeSeriesAnomalyDetector{
 				sum+=data[j];
 			}
 			container[j] = sum/j;
-		}
-		
-		
-	}
-
-	public float[][] getTXtest() {
-		return TXtest;
-	}
-
-	public float[][] getzScores() {
-		return zScores;
+		}		
 	}
 
 	private void calcStdDev(float[] stdDev, float[] data, float[] means) {
@@ -104,53 +119,13 @@ public class ZscoreAnomalyDetectorV2 implements TimeSeriesAnomalyDetector{
 	//	System.out.println("f = " + f + " TXtest[i][j-1] = " + TXtest[i][j-1] + " i = " + i + " j = " + j + (TXtest[i][j-1] < f));
 	}
 
-	@Override
-	public List<AnomalyReport> detect(TimeSeries ts) {
-		testzScores = new float[ts.getNumOfFeatures()][ts.data[0].length];
-		List<AnomalyReport> alarms = new ArrayList<>();
-		testMeans = new float[ts.getNumOfFeatures()][ts.data[0].length]; // Holds means for each feature
-		testStddev = new float[ts.getNumOfFeatures()][ts.data[0].length]; // Holds standard deviation for each feature
-		for(int i=0;i<ts.getNumOfFeatures();i++) {
-			calcMeans(testMeans[i], ts.data[i]);
-			calcStdDev(testStddev[i],ts.data[i],testMeans[i]);
-			for(int j=0;j<ts.data[0].length;j++) {
-				testzScores[i][j] = zFunc2(ts.data[i][j], testMeans[i][j], testStddev[i][ts.data[i].length-1]);
-				if(testzScores[i][j]>TXtest[i][j]){
-					alarms.add(new AnomalyReport("Feature number " + i + " Zscore = " + testzScores[i][j] + " TX = " + TXtest[i][j] ,j));
-				}
-			}
-		}
-//		System.out.println(testStddev[24][2173]);
-//		System.out.println(testMeans[24][2173]);
-		return alarms;
-	}
-	
 
+	public float[][] getTXtest() {
+	return TXtest;
+	}
 
-	public void fillTxValues(float[][]zScores) {
-		for (int i=0;i<zScores[0].length;i++) {
-			for(int j=0;j<zScores[0].length;j++) {
-				//TXtest[i][j] = StatLib.findMax(zScores[i], i);
-			}
-		}
-	}
-	
-	
-	public float zFunc2(float x, float avg, float sd) {
-		if(sd == 0) return 0;
-		return (Math.abs((x-avg)))/sd;
-	}
-	
-	public float zFunc(int x, float[]arr) {
-		if(x==0) return 0;
-		if(x==1) return arr[1];
-		float[] tempArr = new float[x];
-		for(int i=0;i<x;i++) {
-			tempArr[i] = arr[i];
-		}
-		float mean = StatLib.avg(tempArr);
-		float sd = (float) Math.abs(Math.sqrt(StatLib.var(tempArr)));
-		return (arr[x]-mean)/sd;
+	public float[][] getzScores() {
+		return zScores;
 	}
 
 	public float[][] getTestMeans() {
@@ -172,9 +147,6 @@ public class ZscoreAnomalyDetectorV2 implements TimeSeriesAnomalyDetector{
 	public float[][] getStddev() {
 		return stddev;
 	}
-
-
-	
 }
 
 
