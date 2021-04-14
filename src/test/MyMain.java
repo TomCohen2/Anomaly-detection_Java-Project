@@ -73,7 +73,7 @@ public class MyMain {
 			generateTrainCSV(a1,b1,a2,b2);
 			TimeSeries ts=new TimeSeries("trainFile1.csv");
 			SimpleAnomalyDetector ad=new SimpleAnomalyDetector();
-			ZscoreAnomalyDetector zad = new ZscoreAnomalyDetector();
+			ZscoreAnomalyDetector1 zad = new ZscoreAnomalyDetector1();
 			ad.learnNormal(ts);
 			zad.learnNormal(ts);
 			for (float temp : zad.TXtest[0]) {

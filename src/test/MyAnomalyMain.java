@@ -31,7 +31,7 @@ public class MyAnomalyMain {
 		
 		//Z-Score
 		//Learning phase
-		ZscoreAnomalyDetectorV2 zad = new ZscoreAnomalyDetectorV2();
+		ZscoreAnomalyDetector1 zad = new ZscoreAnomalyDetector1();
 		zad.learnNormal(ts);
 		//Detecting phase
 		List<AnomalyReport> ZSReports = zad.detect(ts2);

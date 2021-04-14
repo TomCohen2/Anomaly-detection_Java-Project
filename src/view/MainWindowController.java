@@ -8,16 +8,13 @@ import javafx.fxml.Initializable;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
-import javafx.scene.layout.BorderStroke;
 import test.AnomalyReport;
 import test.TimeSeries;
-import test.ZscoreAnomalyDetectorV2;
-import javafx.stage.Stage;
-import javafx.scene.Scene;
+import test.ZscoreAnomalyDetector1;
 
 public class MainWindowController implements Initializable{
-	static int MagicNumber = 24;
-	ZscoreAnomalyDetectorV2 zad;
+	static int MagicNumber = 1;
+	ZscoreAnomalyDetector1 zad;
 	TimeSeries ts;
 	TimeSeries ts2;
 	@FXML
@@ -52,9 +49,9 @@ public class MainWindowController implements Initializable{
 
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
-		zad = new ZscoreAnomalyDetectorV2();
-		ts = new TimeSeries("reg_flight.csv");
-		ts2 = new TimeSeries("anomaly_flight.csv");
+		zad = new ZscoreAnomalyDetector1();
+		ts = new TimeSeries("trainFile1.csv");
+		ts2 = new TimeSeries("testFile1.csv");
 		xAxis = new NumberAxis(0,ts.getNumOfRows(),1);
 		yAxis = new NumberAxis(-5,5,1);
 		XYChart.Series series = new XYChart.Series();

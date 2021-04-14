@@ -28,11 +28,10 @@ public class SimpleAnomalyDetector implements TimeSeriesAnomalyDetector {
 		{
 			for (int k=0; k<maxArr.length;k++) // initializing maxArr
 				maxArr[k]=0;
-			for (int j=i+1;j<ts.getNumOfFeatures();j++)
-			{
-					if(corList == null)
-						corList = new ArrayList<CorrelatedFeatures>();
-					maxArr[j] = Math.abs(StatLib.pearson(ts.data[i], ts.data[j]));
+			for (int j=i+1;j<ts.getNumOfFeatures();j++) {
+				if(corList == null)
+					corList = new ArrayList<CorrelatedFeatures>();
+				maxArr[j] = Math.abs(StatLib.pearson(ts.data[i], ts.data[j]));
 			}
 			maxIndex = StatLib.maxAt(maxArr);
 			Point[] points = StatLib.arrToPoints(ts.data[i], ts.data[maxIndex]);
