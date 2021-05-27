@@ -31,7 +31,7 @@ import javafx.stage.Stage;
 public class Model extends Observable{
 	//Settings members
 	HashMap<String,settingsObj> map;
-	HashMap<String,String> filePathMap;
+	HashMap<String,String> filePathMap, remember;
 	String anomalyFlightFilePath, validFlightFilePath, algorithmFilePath;
 	Set<String> fileList;
 	List<String> featureList;
@@ -257,16 +257,21 @@ public class Model extends Observable{
 				try {
 					@SuppressWarnings("unused")
 					Scanner temp = new Scanner(new FileReader(lineArgs[1]));
+					if(temp!=null)
+						temp.close();
 				} catch (FileNotFoundException e) {
 					System.out.println("Error in line " + errorInLine + " in your settings file, Anomaly file missing. ");
 					return;
 				}
+				
 				errorInLine++;
 				break;
 			case "validFlightFilePame":
 				try {
 					@SuppressWarnings("unused")
 					Scanner temp = new Scanner(new FileReader(lineArgs[1]));
+					if(temp!=null)
+						temp.close();
 				} catch (FileNotFoundException e) {
 					System.out.println("Error in line " + errorInLine + " in your settings file, RegFlight file missing. ");
 					return;
@@ -277,6 +282,8 @@ public class Model extends Observable{
 				try {
 					@SuppressWarnings("unused")
 					Scanner temp = new Scanner(new FileReader(lineArgs[1]));
+					if(temp!=null)
+						temp.close();
 				} catch (FileNotFoundException e) {
 					System.out.println("Error in line " + errorInLine + " in your settings file, Algo file missing. ");
 					return;
@@ -371,6 +378,7 @@ public class Model extends Observable{
 			}
 		}
 		in.close();
+		remember.put("LSU", fileName);
 		System.out.println("Loading " + fileName + " complete.");
 	}
 	
@@ -392,6 +400,12 @@ public class Model extends Observable{
 		chooser.getExtensionFilters().add(extFilter);
 		chooser.setTitle("Open CSV File");
 		File file = chooser.showOpenDialog(new Stage());
+		
+		if (file == null) {
+			System.out.println("File selection error. try again.");
+			newCSVFile();
+			return;
+		}
 		openCSVFile(file.getPath());
 	}
 	public double getAileronVal() {
@@ -532,6 +546,13 @@ public class Model extends Observable{
 		chooser.getExtensionFilters().add(extFilter);
 		chooser.setTitle("Open txt File");
 		File file = chooser.showOpenDialog(new Stage());
+		
+		if(file == null) {
+			System.out.println("No file is selected. Loading last loaded file.");
+			loadSettings(remember.get("LSU"));
+			return;
+		}
+		
 		saveSettings(file.getPath());
 		
 	}
