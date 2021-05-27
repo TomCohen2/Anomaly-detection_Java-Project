@@ -1,0 +1,15 @@
+aileron,5
+elevator,3
+rudder,1,
+throttle,6
+flightHeight,15
+flightSpeed,24
+flightDirection,36
+roll,28
+pitch,29
+yaw,20
+---
+sampleRate,223
+anomalyFlightFilePath,C:\Users\blind\git\PTM2Project\anomaly_flight.csv
+validFlightFilePame,C:\Users\blind\git\PTM2Project\reg_flight.csv
+algorithm,C:\Users\blind\git\PTM2Project\myAlgo.Class

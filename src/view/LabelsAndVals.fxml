@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.shape.Line?>
+<?import javafx.scene.shape.Rectangle?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="361.0" prefWidth="426.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="view.LabelsAndValsController">
+   <children>
+      <Button fx:id="NewSettingsFile" layoutX="90.0" layoutY="215.0" mnemonicParsing="false" onAction="#newSettingsFile" prefHeight="25.0" prefWidth="110.0" text="New Settings File" />
+      <AnchorPane layoutX="230.0" layoutY="6.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="270.0" prefWidth="200.0">
+         <children>
+            <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#ffffff7a" height="272.0" layoutX="8.0" layoutY="-7.0" stroke="BLACK" strokeType="INSIDE" width="193.0" />
+            <Label layoutX="15.0" layoutY="1.0" text="Aileron" textFill="#3700ff">
+               <font>
+                  <Font name="System Bold" size="14.0" />
+               </font>
+            </Label>
+            <Label layoutX="15.0" layoutY="31.0" text="Elevator" textFill="#3700ff">
+               <font>
+                  <Font name="System Bold" size="14.0" />
+               </font>
+            </Label>
+            <Label layoutX="15.0" layoutY="61.0" text="Rudder" textFill="#3700ff">
+               <font>
+                  <Font name="System Bold" size="14.0" />
+               </font>
+            </Label>
+            <Label layoutX="15.0" layoutY="91.0" text="Throttle" textFill="#3700ff">
+               <font>
+                  <Font name="System Bold" size="14.0" />
+               </font>
+            </Label>
+            <Label layoutX="15.0" layoutY="121.0" text="Flight Height" textFill="#3700ff">
+               <font>
+                  <Font name="System Bold" size="14.0" />
+               </font>
+            </Label>
+            <Label layoutX="15.0" layoutY="151.0" text="Flight Speed" textFill="#3700ff">
+               <font>
+                  <Font name="System Bold" size="14.0" />
+               </font>
+            </Label>
+            <Label layoutX="15.0" layoutY="181.0" text="Roll" textFill="#3700ff">
+               <font>
+                  <Font name="System Bold" size="14.0" />
+               </font>
+            </Label>
+            <Label layoutX="15.0" layoutY="211.0" text="Pitch" textFill="#3700ff">
+               <font>
+                  <Font name="System Bold" size="14.0" />
+               </font>
+            </Label>
+            <Label layoutX="15.0" layoutY="241.0" text="Yaw" textFill="#3700ff">
+               <font>
+                  <Font name="System Bold" size="14.0" />
+               </font>
+            </Label>
+            <Line endX="100.0" layoutX="100.0" layoutY="115.0" startX="-91.99996948242188" startY="1.52587890625E-5" />
+            <Line endX="100.0" layoutX="100.0" layoutY="175.0" startX="-91.99996948242188" startY="1.52587890625E-5" />
+            <Line endX="100.0" layoutX="100.0" layoutY="145.0" startX="-91.99996948242188" startY="1.52587890625E-5" />
+            <Line endX="100.0" layoutX="100.0" layoutY="205.0" startX="-91.99996948242188" startY="1.52587890625E-5" />
+            <Line endX="100.0" layoutX="100.0" layoutY="235.0" startX="-91.99996948242188" startY="1.52587890625E-5" />
+            <Line endX="100.0" layoutX="100.0" layoutY="85.0" startX="-91.99996948242188" startY="1.52587890625E-5" />
+            <Line endX="100.0" layoutX="100.0" layoutY="55.0" startX="-91.99996948242188" startY="1.52587890625E-5" />
+            <Line endX="100.0" layoutX="100.0" layoutY="25.0" startX="-91.99996948242188" startY="1.1444091796875E-5" />
+            <Label fx:id="AileronVal" layoutX="155.0" layoutY="1.0" text="0.0" textFill="RED">
+               <font>
+                  <Font name="System Bold" size="14.0" />
+               </font>
+            </Label>
+            <Label fx:id="ElevatorVal" layoutX="155.0" layoutY="31.0" text="0.0" textFill="RED">
+               <font>
+                  <Font name="System Bold" size="14.0" />
+               </font>
+            </Label>
+            <Label fx:id="RudderVal" layoutX="155.0" layoutY="61.0" text="0.0" textFill="RED">
+               <font>
+                  <Font name="System Bold" size="14.0" />
+               </font>
+            </Label>
+            <Label fx:id="ThrottleVal" layoutX="155.0" layoutY="91.0" text="0.0" textFill="RED">
+               <font>
+                  <Font name="System Bold" size="14.0" />
+               </font>
+            </Label>
+            <Label fx:id="FlightHeightVal" layoutX="155.0" layoutY="121.0" text="0.0" textFill="RED">
+               <font>
+                  <Font name="System Bold" size="14.0" />
+               </font>
+            </Label>
+            <Label fx:id="FlightSpeedVal" layoutX="155.0" layoutY="151.0" text="0.0" textFill="RED">
+               <font>
+                  <Font name="System Bold" size="14.0" />
+               </font>
+            </Label>
+            <Label fx:id="RollVal" layoutX="155.0" layoutY="181.0" text="0.0" textFill="RED">
+               <font>
+                  <Font name="System Bold" size="14.0" />
+               </font>
+            </Label>
+            <Label fx:id="PitchVal" layoutX="155.0" layoutY="211.0" text="0.0" textFill="RED">
+               <font>
+                  <Font name="System Bold" size="14.0" />
+               </font>
+            </Label>
+            <Label fx:id="YawVal" layoutX="155.0" layoutY="241.0" text="0.0" textFill="RED">
+               <font>
+                  <Font name="System Bold" size="14.0" />
+               </font>
+            </Label>
+         </children>
+      </AnchorPane>
+      <Slider fx:id="timeStepSlider" blockIncrement="1.0" layoutX="6.0" layoutY="327.0" max="200.0" onMousePressed="#pause" onMouseReleased="#play" prefHeight="14.0" prefWidth="416.0" />
+      <Label fx:id="maxTimeStep" layoutX="382.0" layoutY="310.0" text="Label" />
+      <Label fx:id="CurTimeStep" layoutX="330.0" layoutY="310.0" text="Label" />
+      <Button layoutX="158.0" layoutY="298.0" mnemonicParsing="false" onMouseClicked="#play" text="Play" />
+      <Button layoutX="242.0" layoutY="297.0" mnemonicParsing="false" onMouseClicked="#pause" text="Pause" />
+      <CheckBox fx:id="Simulator" layoutX="30.0" layoutY="302.0" mnemonicParsing="false" text="Simulator" />
+      <Button fx:id="LoadSettingsFile" layoutX="90.0" layoutY="181.0" mnemonicParsing="false" onAction="#selectSettings" prefHeight="25.0" prefWidth="110.0" text="Load Settings File" />
+      <Button fx:id="UploadCSVFile" layoutX="90.0" layoutY="250.0" mnemonicParsing="false" onAction="#openCSVFile" prefHeight="25.0" prefWidth="110.0" text="Upload CSV File" />
+      <Label layoutX="90.0" layoutY="8.0" text="Existing Settings files" />
+      <ListView fx:id="SettingsFilesListView" layoutX="78.0" layoutY="32.0" prefHeight="138.0" prefWidth="135.0" />
+      <Button layoutX="12.0" layoutY="53.0" mnemonicParsing="false" onAction="#deleteSettingsFile" prefHeight="75.0" prefWidth="54.0" text="Delete" />
+      <Label layoutX="375.0" layoutY="310.0" text="/" />
+   </children>
+</AnchorPane>

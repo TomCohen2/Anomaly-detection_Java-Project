@@ -14,6 +14,16 @@ public class SimpleAnomalyDetector implements TimeSeriesAnomalyDetector {
 	}
 
 
+	public List<CorrelatedFeatures> getCorList() {
+		return corList;
+	}
+
+
+	public void setCorList(List<CorrelatedFeatures> corList) {
+		this.corList = corList;
+	}
+
+
 	public void setCorOffset(float corOffset) {
 		this.corOffset = corOffset;
 	}
@@ -26,8 +36,8 @@ public class SimpleAnomalyDetector implements TimeSeriesAnomalyDetector {
 
 		for (int i=0;i<ts.getNumOfFeatures();i++) //checking if any two features have correlation.
 		{
-			for (int k=0; k<maxArr.length;k++) // initializing maxArr
-				maxArr[k]=0;
+		//	for (int k=0; k<maxArr.length;k++) // initializing maxArr
+			//	maxArr[k]=0;
 			for (int j=i+1;j<ts.getNumOfFeatures();j++)
 			{
 					if(corList == null)
@@ -61,7 +71,7 @@ public class SimpleAnomalyDetector implements TimeSeriesAnomalyDetector {
 				{
 					if(alarms == null) 
 						alarms = new ArrayList<AnomalyReport>();
-					alarms.add(new AnomalyReport(str, i+1));
+					alarms.add(new AnomalyReport("LR " + str, i+1));
 				}
 			}
 			

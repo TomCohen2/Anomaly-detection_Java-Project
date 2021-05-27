@@ -1,9 +1,11 @@
 package view;
 	
+import ViewModel.ViewModel;
 import javafx.application.Application;
 import javafx.stage.Stage;
+import test.Model;
 import javafx.scene.Scene;
-import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.AnchorPane;
 import javafx.fxml.FXMLLoader;
 
 
@@ -11,8 +13,19 @@ public class Main extends Application {
 	@Override
 	public void start(Stage primaryStage) {
 		try {
-			BorderPane root = (BorderPane)FXMLLoader.load(getClass().getResource("/view/MainWindow.fxml"));
-			Scene scene = new Scene(root,800,800);
+			FXMLLoader fxml = new FXMLLoader();
+			AnchorPane root = fxml.load(getClass().getResource("LabelsAndVals.fxml").openStream());
+			LabelsAndValsController wc = fxml.getController();
+			Model model = new Model();
+			//model.saveSettings("C:\\Users\\blind\\git\\PTM2Project\\EyalsSettings.txt");
+			//model.loadSettings("EyalsSettings.txt");
+			//model.openCSVFile("C:\\Users\\blind\\git\\PTM2Project\\anomaly_flight.csv");
+			ViewModel vm = new ViewModel(model);
+			vm.initialize();
+			wc.setViewModel(vm);
+			
+			
+			Scene scene = new Scene(root,430,361);
 			scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 			primaryStage.setScene(scene);
 			primaryStage.show();

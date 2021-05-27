@@ -1,6 +1,10 @@
 package test;
 import java.lang.Math;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
 
 public class StatLib {
 
@@ -124,4 +128,86 @@ public class StatLib {
 				return -1;
 	}
 
+	//Returns the distance between two points
+	public static float dist(Point a, Point b) {
+		return (float)Math.sqrt(Math.pow(a.x-b.x,2)+Math.pow(a.y-b.y, 2));
+	}
+	
+	public static Circle findCircleFromThreePoints(Point a, Point b, Point c) {
+		Point temp = findCircleCenter(b.x-a.x,b.y-a.y,c.x-a.x,c.y-a.y);
+		Point center = new Point(temp.x+a.x,temp.y+a.y);
+		return new Circle(center, dist(center,a));
+	}
+	
+	public static Point findCircleCenter(float bx, float by, float cx, float cy) {
+		float B = bx*bx + by*by;
+		float C = cx*cx + cy*cy;
+		float D = bx*cy - by*cx;
+		return new Point((cy*B-by*C)/(2*D),(bx*C - cx*B)/(2*D));
+	}
+	
+	public static Circle findCircleFromTwoPoints(Point a, Point b) {
+		Point c = new Point((a.x+b.x)/2.0f,(a.y+b.y)/2.0f);
+		return new Circle(c, dist(a,b)/2.0f);
+	}
+	
+	public static boolean isValidCircle(Circle c, List<Point> points) {
+		for (Point p : points)
+			if(!c.contains(p))
+				return false;
+		return true;
+		
+	}
+	
+	public static Circle trivialCircle(List<Point> points) {
+		if(points.size()>3) System.out.println("HUGE ERROR");
+		if(points.size()==0) return new Circle(new Point(0,0),0);
+		else if (points.size()==1) return new Circle(points.get(0),0);
+		else if (points.size()==2) return findCircleFromTwoPoints(points.get(0),points.get(1));
+		
+		for(int i=0;i<3;i++) {
+			for(int j=i+1;j<3;j++) {
+				Circle c = findCircleFromTwoPoints(points.get(i),points.get(j));
+				if(isValidCircle(c, points))
+					return c;
+			}
+		}
+		return findCircleFromThreePoints(points.get(0), points.get(1), points.get(2));
+	}
+
+	private static Circle welzlHelper(List<Point> pointsList, List<Point> boundries, int size) {
+		Random r=new Random();
+		System.out.println("Boundries.size = " + boundries.size());
+		if(size == 0 || boundries.size() >= 3) return trivialCircle(boundries);
+		
+		int index = (r.nextInt(1000)%size);
+		System.out.println(index + " " + size);
+		Point p = pointsList.get(index);
+		System.out.println("Point[index] = " + pointsList.get(index) + " Point[size-1] = " + pointsList.get(size-1));
+		Collections.swap(pointsList, index, size-1);
+		System.out.println("After Swap");
+		System.out.println("Point[index] = " + pointsList.get(index) + " Point[size-1] = " + pointsList.get(size-1));
+		Circle d = welzlHelper(pointsList,boundries,size-1);
+		if(d.contains(p))
+			return d;
+		
+		boundries.add(p);
+		
+		return welzlHelper(pointsList,boundries,size-1);
+	}
+	
+	public static Circle findMinCircle(Point[]points) {
+		List<Point> pointsList = new ArrayList<>();
+		List<Point> boundries = new ArrayList<>();
+		for(int i=0;i<points.length;i++) {
+			if(!pointsList.contains(points[i]))
+				pointsList.add(points[i]);
+		}
+		Collections.shuffle(pointsList);
+		return welzlHelper(pointsList, boundries, pointsList.size());
+	}
+
+
+
+	
 }

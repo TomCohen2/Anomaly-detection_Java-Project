@@ -19,21 +19,23 @@ public class TimeSeries {
 	}
 
 	public TimeSeries(String csvFileName) {
+		Scanner sc = null;
 		try
 		{
-		Scanner sc = new Scanner(new FileReader(csvFileName));  
-		setFeatures(sc.nextLine().split(","));
-
-		sc.useDelimiter(",");
-		while(sc.hasNextLine())
-			addRow(sc.nextLine());
-		sc.close();
+			sc = new Scanner(new FileReader(csvFileName));  
+		
 		
 		}
 		catch (IOException ex)
 		{
 			
 		}
+		setFeatures(sc.nextLine().split(","));
+		
+		sc.useDelimiter(",");
+		while(sc.hasNextLine())
+			addRow(sc.nextLine());
+		sc.close();
 		
 	}
 	
