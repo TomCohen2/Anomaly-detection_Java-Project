@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.HBox?>
+
+
+<HBox xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/16" fx:controller="views.PannelController">
+   <children>
+      <Button mnemonicParsing="false" onAction="#play" text="Play" />
+      <Button mnemonicParsing="false" onAction="#pause" text="Pause" />
+      <Button mnemonicParsing="false" onAction="#stop" text="Stop" />
+   </children>
+</HBox>
