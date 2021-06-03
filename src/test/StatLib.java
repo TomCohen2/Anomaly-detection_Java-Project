@@ -99,6 +99,12 @@ public class StatLib {
 		return temp[arr.length-1];
 	}
 	
+	//Returns max value in array
+	public static float findMin(float[] arr) {
+		float[]temp = arr.clone();
+		Arrays.sort(temp);
+		return temp[0];
+	}
 	
 	
 	//Returns an array of dev value of each point to a line.
@@ -205,6 +211,16 @@ public class StatLib {
 		}
 		Collections.shuffle(pointsList);
 		return welzlHelper(pointsList, boundries, pointsList.size());
+	}
+
+
+	public static float[] TrimArr(float[] fs, int timeStep) {
+		float[] temp = new float[timeStep];
+		for(int i=0;i<timeStep;i++) {
+			temp[i] = fs[i];
+			//System.out.println("temp[i] = " + temp[i] + " fs[i] = " + fs[i]);
+		}
+		return temp;
 	}
 
 

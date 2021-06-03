@@ -1,8 +1,11 @@
 package test;
 
-import java.io.BufferedReader;
+import java.beans.XMLDecoder;
+import java.beans.XMLEncoder;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -10,39 +13,58 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Scanner;
-import java.util.Set;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
-
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.chart.XYChart;
+import javafx.scene.chart.XYChart.Data;
+import javafx.scene.chart.XYChart.Series;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import test.TimeSeriesAnomalyDetector.GraphStruct;
 
 public class Model extends Observable{
 	//Settings members
+	static String settingsFolder = "./SettingsFiles/";
+	static String algoFolder = "./AlgoFiles/";
+	
 	HashMap<String,settingsObj> map;
+	HashMap<String,TimeSeriesAnomalyDetector> Factory;
 	HashMap<String,String> filePathMap, remember;
 	String anomalyFlightFilePath, validFlightFilePath, algorithmFilePath;
-	Set<String> fileList;
-	List<String> featureList;
+	ObservableList<String> featureObsList,fileSettingsObsList,algoObsList;
 	TimeSeries regTS, anomalyTS;
 	int sampleRate;
 	int timeStep;
+	int currentTab;
 	Thread t;
-	AtomicBoolean stopFlag;
-	AtomicBoolean isSimulated;
-	ObservableList<String> fileSettingsObsList;
+	volatile AtomicBoolean stopFlag;
+	volatile AtomicBoolean isSimulated;
+	volatile AtomicBoolean rewindFlag;
+	volatile AtomicBoolean playFlag;
+	volatile AtomicBoolean secondPlayFlag;
+	
+	String selectedAlgorithm;
+	double playSpeed = 1;
 
+	public double getPlaySpeed() {
+		return playSpeed;
+	}
+
+	public void setPlaySpeed(double playSpeed) {
+		this.playSpeed = playSpeed;
+		System.out.println("Playspeed has changed to " + playSpeed);
+	}
 
 	double AileronVal;
 	double ElevatorVal;
@@ -54,150 +76,215 @@ public class Model extends Observable{
 	double PitchVal;
 	double YawVal;
 	
+	TimeSeriesAnomalyDetector tsad;
 	
-	TimeSeriesAnomalyDetector testAD;
-	
-	public void connectToSimulator() {
-		new Thread(()->{
-			Socket fg = null;
-			try {
-				fg = new Socket("127.0.0.1", 5400);
-			} catch (UnknownHostException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			PrintWriter out = null;
-			try {
-				out = new PrintWriter(fg.getOutputStream());
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			//System.out.println("Before while");
-			while(!stopFlag.get()) {
-				//System.out.println("Inside While");
-				//System.out.println(String.valueOf(anomalyTS.getData()[timeStep]));
-				String line = "";
-				for(int i=0;i<anomalyTS.getNumOfFeatures();i++) {
-					line +=anomalyTS.getData()[i][timeStep]+",";
-				//	System.out.println(anomalyTS.getData()[i][timeStep]);
-				}
-				line = line.substring(0,line.length()-1);
-				//System.out.println(line);
-				out.println(line);
-				out.flush();
-				try {
-					Thread.sleep(1000/sampleRate);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-			out.close();
-			try {
-				fg.close();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}).start();
-	}
-	
-	
-	public void pause() {
-		System.out.println("Hello from pause model");
-		new Thread(()-> {
-			setStopFlag(true);
-		}).start();
-	}
-	
-	public void play() {
-		System.out.println("Play from Model! ");
-		setStopFlag(false);
-		if(isSimulated.get()) {
-		//	System.out.println("After the check!");
-			new Thread(()->{
-				connectToSimulator();
-			}).start();
-		}
-		new Thread(()->{
-			while(!stopFlag.get() && timeStep<anomalyTS.getNumOfRows()-1) {
-				setTimeStep(timeStep+1);
-			//	System.out.println("In while. timestep = " + timeStep + "Flag = " + stopFlag);
-				try {
-					Thread.currentThread();
-					Thread.sleep(1000/sampleRate);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				
-			}
-			}
-		}).start();
-	}
+	//ThreadPool
+	ExecutorService es = Executors.newFixedThreadPool(10);
 	
 	public Model() {
-		fileList = new HashSet<>();
+		
 		fileSettingsObsList  = FXCollections.observableArrayList();
+		featureObsList = FXCollections.observableArrayList();
+		algoObsList = FXCollections.observableArrayList();
 		map = new HashMap<>();
-		featureList = new ArrayList<>();
-		stopFlag = new AtomicBoolean();
+		remember = new HashMap<>();
+		stopFlag = new AtomicBoolean(false);
 		isSimulated = new AtomicBoolean(false);
-		File directory = new File("./SettingsFiles");
-		File[] listOfFiles = directory.listFiles();
+		rewindFlag = new AtomicBoolean(false);
+		playFlag = new AtomicBoolean(false);
+		secondPlayFlag = new AtomicBoolean(false);
+		
+		selectedAlgorithm = "Linear-Regression";
+		Factory = new HashMap<>();
+		FillFactory();
+		File AlgoDir = new File(algoFolder);
+		File SettingsDir = new File(settingsFolder);
+		File[] listOfFiles = SettingsDir.listFiles();
 		if (listOfFiles!=null) {
 			for(int i=0;i<listOfFiles.length;i++) {
 				if(listOfFiles[i].isFile()) {
-					fileList.add(listOfFiles[i].getName());
 					fileSettingsObsList.add(listOfFiles[i].getName());
 				}
 			}
 		}
 		
-	}
-	
-	public int getTimeStep() {
-		return timeStep;
-	}
-
-	public void setTimeStep(int timeStep) {
-		this.timeStep = timeStep;
-		//DecimalFormat df = new DecimalFormat("####.###");
-		AileronVal = Math.floor(anomalyTS.getData()[map.get("aileron").getCulNumber()][timeStep]*100)/100;
-		ElevatorVal = Math.floor(anomalyTS.getData()[map.get("elevator").getCulNumber()][timeStep]*100)/100;
-		RudderVal = Math.floor(anomalyTS.getData()[map.get("rudder").getCulNumber()][timeStep]*100)/100;      
-		ThrottleVal = Math.floor(anomalyTS.getData()[map.get("throttle").getCulNumber()][timeStep]*100)/100;
-		FlightHeightVal = Math.floor(anomalyTS.getData()[map.get("flightHeight").getCulNumber()][timeStep]*100)/100;
-		FlightSpeedVal = Math.floor(anomalyTS.getData()[map.get("flightSpeed").getCulNumber()][timeStep]*100)/100;
-		RollVal = Math.floor(anomalyTS.getData()[map.get("roll").getCulNumber()][timeStep]*100)/100;
-		PitchVal = Math.floor(anomalyTS.getData()[map.get("pitch").getCulNumber()][timeStep]*100)/100;
-		YawVal = Math.floor(anomalyTS.getData()[map.get("yaw").getCulNumber()][timeStep]*100)/100;
-		setChanged();
-		notifyObservers();
-	}
-	
-	public Set<String> getFileList() {
-		return fileList;
-	}
-
-	public void setFileList(Set<String> fileList) {
-		if(this.fileList == null) this.fileList = new HashSet<>();
-		for (String string : fileList) {
-			this.fileList.add(string);
+		//AlgoList
+		algoObsList.add("Linear-Regression");
+		algoObsList.add("Z-Score");
+		algoObsList.add("Hybrid");
+		listOfFiles = AlgoDir.listFiles();
+		if (listOfFiles!=null) {
+			for(int i=0;i<listOfFiles.length;i++) {
+				if(listOfFiles[i].isFile()) {
+					algoObsList.add(listOfFiles[i].getName());
+				}
+			}
 		}
+		
+		File xmlMap = new File("map.XML");
+		if(xmlMap.exists()) loadMapFromDisk();
+		loadSettings(remember.get("LastSettingsFileName"));
 	}
+	
+	private void saveMapToDisk() {
+		XMLEncoder xe = null;
+		try {
+			xe = new XMLEncoder(new FileOutputStream(new File("map.XML")));
+		} catch (FileNotFoundException e) {}
+		xe.writeObject(remember);
+		xe.close();
+	}
+	
+	private void loadMapFromDisk(){
+		XMLDecoder xd = null;
+		 try {
+			xd = new XMLDecoder(new FileInputStream(new File("map.XML")));
+		} catch (FileNotFoundException e) {}
+		 remember = (HashMap<String, String>) xd.readObject();
+	}
+
+	
+	public void finalize() {
+		System.out.println("TEST");
+	}
+	public void connectToSimulator() {
+		es.submit(()->{
+			Socket fg = null;
+			try {fg = new Socket("127.0.0.1", 5400);} catch (UnknownHostException e) {} catch (IOException e) {}
+			PrintWriter out = null;
+			try {out = new PrintWriter(fg.getOutputStream());} catch (IOException e) {}
+			while(!stopFlag.get()) {
+				String line = "";
+				for(int i=0;i<anomalyTS.getNumOfFeatures();i++) {
+					line +=anomalyTS.getData()[i][timeStep]+",";
+				}
+				line = line.substring(0,line.length()-1);
+				out.println(line);
+				out.flush();
+				try {Thread.sleep((long) (1000/(sampleRate*playSpeed)));} catch (InterruptedException e) {}
+			}
+			out.close();
+			try {fg.close();} catch (IOException e) {}
+		});
+	}
+
+	
+	public void play() {
+		setStopFlag(false);
+		System.out.println("Play from Model! playflag = " + playFlag.get() + "StopFlag = " + stopFlag.get());
+		if(isSimulated.get()) {
+		//	System.out.println("After the check!");
+			es.submit(()->{
+				connectToSimulator();
+			});
+		}
+		if(currentTab==1) {
+			es.submit(()->{
+					if(selectedAlgorithm.equals(""))
+						tsad = Factory.get("Linear-Regression");
+					else
+						tsad = Factory.get(selectedAlgorithm);
+						tsad.learnNormal(regTS);
+						tsad.detect(anomalyTS);				
+			});
+		}
+		es.submit(()->{
+			if(secondPlayFlag.get()) {
+				setRewindFlag(false);
+				return;
+			}
+			if(regTS==null) {
+				System.out.println("Please upload a CSV File.");
+				return;
+			}
+			while(!stopFlag.get() && playFlag.get()) {//NEXTTT
+				setSecondPlayFlag(true);
+				if(rewindFlag.get()==false && timeStep<regTS.getNumOfRows()-1)
+					setTimeStep(timeStep+1);
+				else if(timeStep>0)
+					setTimeStep(timeStep-1);
+				else
+					pause();
+				try {
+					Thread.currentThread();
+					Thread.sleep((long) (1000/(sampleRate*playSpeed)));
+				} catch (InterruptedException e) {}
+			}
+		});
+	}
+	
+	
+	
+	public boolean getSecondPlayFlag() {
+		return secondPlayFlag.get();
+	}
+
+	public void setSecondPlayFlag(boolean b) {
+		this.secondPlayFlag.set(b);
+	}
+
+	public boolean getPlayFlag() {
+		return playFlag.get();
+	}
+
+	public void setPlayFlag(boolean b) {
+		this.playFlag.set(b);
+	}
+
+	public void pause() {
+		System.out.println("Hello from pause model");
+		es.submit(()-> {
+			setStopFlag(true);
+		});
+	}
+	public void fastForward() {
+		DecimalFormat df = new DecimalFormat("###.##");
+		this.setPlaySpeed(Double.parseDouble(df.format(playSpeed+0.1)));
+		setChanged();
+		notifyObservers("PlaySpeed");
+	}
+
+	public void superFastForward() {
+		DecimalFormat df = new DecimalFormat("###.##");
+		this.setPlaySpeed(Double.parseDouble(df.format(playSpeed+0.5)));
+		setChanged();
+		notifyObservers("PlaySpeed");
+	}
+
+	public void rewind() {
+		setRewindFlag(true);
+		
+	}
+
+	public AtomicBoolean getRewindFlag() {
+		return rewindFlag;
+	}
+
+	public void setRewindFlag(boolean b) {
+		this.rewindFlag.set(b);
+	}
+
+	public void fastRewind() {
+		rewind();
+		setPlaySpeed(playSpeed+0.5);
+		
+	}
+	private void FillFactory() {
+		Factory.put("Linear-Regression", new SimpleAnomalyDetector());
+		Factory.put("Z-Score", new ZscoreAnomalyDetectorV2());
+		Factory.put("Hybrid", new HybridAnomalyDetector());
+		
+	}
+
+
+	
 	
 	//Reading settings file, if its valid, save it as another file in the system directory.
 	public void saveSettings(String filePath) {
 		Scanner in = null;
 		boolean isCorrect = true;
 		int errorInLine = 1;
-		//System.out.println(filePath);
 		String[] path = filePath.split("\\\\");
-		//System.out.println(Arrays.toString(path));
 		String fileName = path[path.length-1];
 		if(fileSettingsObsList.contains(fileName)) {
 			System.out.println("File already exists.");
@@ -205,9 +292,7 @@ public class Model extends Observable{
 		}
 		try {
 			in = new Scanner(new FileReader(filePath));
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
+		} catch (FileNotFoundException e) {}
 		
 		if(!in.hasNextLine()) {
 			System.out.println("Settings file is empty.");
@@ -216,7 +301,6 @@ public class Model extends Observable{
 		String line = in.nextLine();
 		while(!line.equals("---") && isCorrect) { // reading features
 				String[] lineArgs = line.split(",");
-				//System.out.println(Arrays.toString(lineArgs) + " length is " + lineArgs.length );
 				if (lineArgs.length!=4 && lineArgs.length!=2) {
 					isCorrect = false;
 					System.out.println("Error in line " + errorInLine + " in your settings file, Wrong format, expected culName,culNumber.");
@@ -295,35 +379,46 @@ public class Model extends Observable{
 				return;
 			}
 		} // end of misc. if we'r passed here, the file is ok.
-		copyFile(filePath, fileName);
-		fileList.add(fileName);
+		copyFile(filePath, fileName,settingsFolder);
 		fileSettingsObsList.add(fileName);
 		in.close();
 	}
 	
+	private void saveAlgo(String path) {
+		Scanner in = null;
+		String[] pathArgs = path.split("\\\\");
+		String fileName = pathArgs[pathArgs.length-1];
+		if(algoObsList.contains(fileName)) {
+			System.out.println("File already exists.");
+			return;
+		}
+		try {
+			in = new Scanner(new FileReader(path));
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		
+		if(!in.hasNextLine()) {
+			System.out.println("Algo class file is empty.");
+			return;
+		}
+		copyFile(path, fileName, algoFolder);
+	}
 	
-	private void copyFile(String filePath, String fileName) {
+	private void copyFile(String filePath, String fileName,String dest) {
 		Scanner in = null;
 		PrintWriter out = null;
 		String line;
-		String path = "./SettingsFiles/";
-		File directory = new File(path);
+		File directory = new File(dest);
 		if (! directory.exists()) {
 			directory.mkdir();
 		}
-		//if (!Files.exists(path))
-		//System.out.println(".\\SettingsFiles\\" + fileName);
 		try {
 			in=new Scanner(new FileReader(filePath));
-			out=new PrintWriter(new FileWriter(path + fileName));			
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+			out=new PrintWriter(new FileWriter(dest + fileName));			
+		} catch (FileNotFoundException e) {} catch (IOException e) {}
 		while(in.hasNext()) {
 			line = in.nextLine();
-			//System.out.println("Copying -----" + line);
 			out.println(line);;
 		}
 		in.close();
@@ -333,10 +428,8 @@ public class Model extends Observable{
 	public void loadSettings(String fileName) {
 		Scanner in = null;
 		try {
-			in=new Scanner(new FileReader("./SettingsFiles/"+fileName));
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
+			in=new Scanner(new FileReader(settingsFolder+fileName));
+		} catch (FileNotFoundException e) {}
 		
 		if(!in.hasNextLine()) {
 			System.out.println("Settings file is empty.");
@@ -378,22 +471,47 @@ public class Model extends Observable{
 			}
 		}
 		in.close();
-		remember.put("LSU", fileName);
+		remember.put("LastSettingsFileName", fileName);
+		saveMapToDisk();
 		System.out.println("Loading " + fileName + " complete.");
 	}
 	
 	public void openCSVFile(String fileName) {
-		anomalyTS = new TimeSeries(fileName);
+		regTS = new TimeSeries(fileName);
 		for (Map.Entry<String, settingsObj> entry : map.entrySet()) {
-			if (anomalyTS.getFeatures()[entry.getValue().getCulNumber()] == null) {
+			if (regTS.getFeatures()[entry.getValue().getCulNumber()] == null) {
 				System.out.println("Error. culumn number " + entry.getValue().getCulNumber() + " doesnt match the settings file.");
 			}
 		}
-		featureList.addAll(Arrays.asList(anomalyTS.getFeatures()));
+		featureObsList.addAll(Arrays.asList(regTS.getFeatures()));
 		timeStep = 0;
+		setChanged();
+		notifyObservers("TrainFile");
 		System.out.println("Ready for simulation.");
 	}
 	
+	public void uploadTestFile() {
+		FileChooser chooser = new FileChooser();
+		FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("CSV files (*.csv)","*.csv");
+		chooser.getExtensionFilters().add(extFilter);
+		chooser.setTitle("Open CSV Test File");
+		File file = chooser.showOpenDialog(new Stage());
+
+		if(file == null) {
+			System.out.println("No file is selected. Try again.");
+			return;
+		}
+		System.out.println(file.getPath());
+		remember.put("TestFileName", file.getPath());
+		setChanged();
+		notifyObservers("TestFile");
+		initAnomalyTS(file.getPath());
+	}
+	
+	public void initAnomalyTS(String filePath) {
+		this.anomalyTS = new TimeSeries(filePath);
+	}
+
 	public void newCSVFile() {
 		FileChooser chooser = new FileChooser();
 		FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("CSV files (*.csv)","*.csv");
@@ -406,8 +524,222 @@ public class Model extends Observable{
 			newCSVFile();
 			return;
 		}
+		remember.put("TrainFileName", file.getPath());
 		openCSVFile(file.getPath());
 	}
+	
+
+	public String calculateMaxTimeStep() {
+		return calculateTime((int)(regTS.getNumOfRows()/sampleRate));
+		
+	}
+
+	public int getSampleRate() {
+		return sampleRate;
+	}
+
+	public void setSampleRate(int sampleRate) {
+		this.sampleRate = sampleRate;
+	}
+
+	public String calculateTime(int totalSeconds)
+	{
+		String res = "";
+		int hours = totalSeconds/3600;
+		totalSeconds%=3600;
+		int minutes = totalSeconds/60;
+		int seconds = totalSeconds%60;
+		if(hours<10) res+= "0"+hours+":";
+		else
+			res+= hours+":";
+		if(minutes<10) res+= "0"+minutes+":";
+		else
+			res+= minutes+":";
+		if(seconds<10) res+= "0"+seconds;
+		else
+			res+= seconds;
+		return res;
+	}
+
+	public int getMaxLines() {
+		return regTS.getNumOfRows();
+	}
+
+
+	public void newSettingsFile() {
+		FileChooser chooser = new FileChooser();
+		FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("TEXT files (*.txt)","*.txt");
+		chooser.getExtensionFilters().add(extFilter);
+		chooser.setTitle("Open txt File");
+		File file = chooser.showOpenDialog(new Stage());
+
+		if(file == null) {
+			System.out.println("No file is selected. Loading last loaded file.");
+			loadSettings(remember.get("LSU"));
+			return;
+		}
+		saveSettings(file.getPath());
+		
+	}
+	
+	public void newAlgoFile() {
+		FileChooser chooser = new FileChooser();
+		FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("CLASS files (*.class)","*.class");
+		chooser.getExtensionFilters().add(extFilter);
+		chooser.setTitle("Open Class File");
+		File file = chooser.showOpenDialog(new Stage());
+
+		if(file == null) {
+			System.out.println("No file is selected. Try again.");
+			return;
+		}
+		remember.put(file.getName(), file.getPath());
+		algoObsList.add(file.getName().substring(0,file.getName().lastIndexOf('.')));
+		setChanged();
+		notifyObservers("AlgoFile");
+		saveAlgo(file.getPath());
+	}
+	
+	
+
+	
+	@SuppressWarnings("unused")
+	private void loadClass(String path) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	public ObservableList<String> getFileSettingsObsList() {
+		return fileSettingsObsList;
+	}
+
+
+	public void setFileSettingsObsList(ObservableList<String> fileSettingsObsList) {
+		this.fileSettingsObsList = fileSettingsObsList;
+	}
+
+
+	public void deleteSettingsFile(String fileName) {
+		if(fileSettingsObsList.contains(fileName))
+			fileSettingsObsList.remove(fileName);
+		removeFile(settingsFolder+fileName,fileName);
+		
+	}
+
+	public void deleteAlgoFile(String algoName) {
+		if(algoName.equals("Z-Score") || algoName.equals("Linear-Regression") || algoName.equals("Hybrid")) {
+			System.out.println("Deleting a basic algorithm is forbidden.");
+			return;
+		}
+		if(algoObsList.contains(algoName))
+			algoObsList.remove(algoName);
+		removeFile(algoFolder+algoName,algoName);
+		
+	}
+	
+	private void removeFile(String path,String fileName) {
+		File toBeRemoved = new File(path);
+		if(!toBeRemoved.delete()) 
+			System.out.println("Failed to remove " + path);
+		else 
+			System.out.println("File " + fileName + " has been removed from the system.");
+	}
+	
+	public GraphStruct displayGraphsCall(String selectedFeature) {
+		System.out.println("From model Str = " + selectedFeature);
+		GraphStruct test = this.tsad.display(selectedFeature);
+		System.out.println(test.getStr());
+		
+		parseAndFill(test);
+		System.out.println("Test points number is " + test.getPoints().getData().size());
+//		for (Point p : test.getPoints()) {
+//			System.out.println(p);
+//		}
+		Series<Number,Number> series = new Series<>();
+		
+		return test;
+	}
+
+
+	private void parseAndFill(GraphStruct test) {
+		System.out.println(test.getStr());
+		String[]stringData = test.getStr().split(",");
+		switch(stringData[0]) {
+		case "LR":
+			System.out.println(stringData[0] + " " + stringData[1] + " " + stringData[2]);
+			int feature1Idx = StatLib.whichIndex(stringData[1], regTS);
+			int feature2Idx = StatLib.whichIndex(stringData[2], regTS);
+			float[] tempFloatsFeature1 = StatLib.TrimArr(anomalyTS.data[feature1Idx],this.getTimeStep());
+			float[] tempFloatsFeature2 = StatLib.TrimArr(anomalyTS.data[feature2Idx], this.getTimeStep());
+			//System.out.println("Feature 1 = " + stringData[1]);
+//			for(int i=0;i<tempFloatsFeature1.length;i++) {
+//				System.out.println(tempFloatsFeature1[i]);
+//			}
+//			System.out.println("Feature 2 = " + stringData[2]);
+//			for(int i=0;i<tempFloatsFeature2.length;i++) {
+//				System.out.println(tempFloatsFeature2[i]);
+//			}
+			Point[] temp = StatLib.arrToPoints(tempFloatsFeature1, tempFloatsFeature2);
+			for(int i=0;i<temp.length;i++) {
+				//System.out.println(temp[i].x + "," + temp[i].y);
+				test.getPoints().getData().add(new XYChart.Data<>(temp[i].x,temp[i].y));
+				test.getFeature1Points().getData().add(new XYChart.Data<>(i,temp[i].x));
+				test.getFeature2Points().getData().add(new XYChart.Data<>(i,temp[i].y));
+			}
+			test.setMaxVal(StatLib.findMax(tempFloatsFeature1));
+			test.setMinVal(StatLib.findMin(tempFloatsFeature1));
+			break;
+		case "Z":
+			break;
+		case "W":
+			break;
+		}
+		
+	}
+	
+	/////GETTERS & SETTERS
+	
+	public int getTimeStep() {
+		return timeStep;
+	}
+
+	public void setTimeStep(int timeStep) {
+		this.timeStep = timeStep;
+		AileronVal = Math.floor(regTS.getData()[map.get("aileron").getCulNumber()][timeStep]*100)/100;
+		ElevatorVal = Math.floor(regTS.getData()[map.get("elevator").getCulNumber()][timeStep]*100)/100;
+		RudderVal = Math.floor(regTS.getData()[map.get("rudder").getCulNumber()][timeStep]*100)/100;      
+		ThrottleVal = Math.floor(regTS.getData()[map.get("throttle").getCulNumber()][timeStep]*100)/100;
+		FlightHeightVal = Math.floor(regTS.getData()[map.get("flightHeight").getCulNumber()][timeStep]*100)/100;
+		FlightSpeedVal = Math.floor(regTS.getData()[map.get("flightSpeed").getCulNumber()][timeStep]*100)/100;
+		RollVal = Math.floor(regTS.getData()[map.get("roll").getCulNumber()][timeStep]*100)/100;
+		PitchVal = Math.floor(regTS.getData()[map.get("pitch").getCulNumber()][timeStep]*100)/100;
+		YawVal = Math.floor(regTS.getData()[map.get("yaw").getCulNumber()][timeStep]*100)/100;
+		setChanged();
+		notifyObservers("TimeStep");
+	}
+	
+	public ObservableList<String> getFeatureList() {
+		return featureObsList;
+	}
+	public String getSelectedAlgorithm() {
+		return selectedAlgorithm;
+	}
+
+
+	public void setSelectedAlgorithm(String selectedAlgorithm) {
+		this.selectedAlgorithm = selectedAlgorithm;
+	}
+
+	public ObservableList<String> getAlgoList() {
+		return algoObsList;
+	}
+
+
+	public void setAlgoList(ObservableList<String> algoList) {
+		this.algoObsList.addAll(algoList);
+	}
+
 	public double getAileronVal() {
 		return AileronVal;
 	}
@@ -487,111 +819,60 @@ public class Model extends Observable{
 	public void setIsSimulated(boolean b) {
 		this.isSimulated.set(b);
 	}
+
+	
 	public AtomicBoolean getStopFlag() {
 		return stopFlag;
 	}
 
 	public void setStopFlag(boolean b) {
+		this.playFlag.set(false);
 		this.stopFlag.set(b);
 	}
+ 
 
-	public String calculateMaxTimeStep() {
-		return calculateTime(anomalyTS.getNumOfRows()/sampleRate);
-		
-	}
-
-	public int getSampleRate() {
-		return sampleRate;
-	}
-
-	public void setSampleRate(int sampleRate) {
-		this.sampleRate = sampleRate;
-	}
-
-	public String calculateTime(int totalSeconds)
-	{
-		String res = "";
-		int hours = totalSeconds/3600;
-		totalSeconds%=3600;
-		int minutes = totalSeconds/60;
-		int seconds = totalSeconds%60;
-		if(hours<10) res+= "0"+hours+":";
-		else
-			res+= hours+":";
-		if(minutes<10) res+= "0"+minutes+":";
-		else
-			res+= minutes+":";
-		if(seconds<10) res+= "0"+seconds;
-		else
-			res+= seconds;
-		return res;
-	}
-//	public boolean isStopFlag() {
-//		return stopFlag;
-//	}
-//
-//	public void setStopFlag(boolean stopFlag) {
-//		this.stopFlag = stopFlag;
-//	}
-
-
-	public int getMaxLines() {
-		return anomalyTS.getNumOfRows();
+	public String getTrainFileName() {
+		return getFileNameFromPath(remember.get("TrainFileName"));
 	}
 
 
-	public void newSettingsFile() {
-		FileChooser chooser = new FileChooser();
-		FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("TEXT files (*.txt)","*.txt");
-		chooser.getExtensionFilters().add(extFilter);
-		chooser.setTitle("Open txt File");
-		File file = chooser.showOpenDialog(new Stage());
-		
-		if(file == null) {
-			System.out.println("No file is selected. Loading last loaded file.");
-			loadSettings(remember.get("LSU"));
-			return;
-		}
-		
-		saveSettings(file.getPath());
-		
+	public String getTestFileName() {
+		return getFileNameFromPath(remember.get("TestFileName"));
 	}
 
-
-	public ObservableList<String> getFileSettingsObsList() {
-		return fileSettingsObsList;
+	private String getFileNameFromPath(String path) {
+		String[] tokens = path.split("\\\\");
+		System.out.println(path);
+		return tokens[tokens.length-1];
 	}
 
-
-	public void setFileSettingsObsList(ObservableList<String> fileSettingsObsList) {
-		this.fileSettingsObsList = fileSettingsObsList;
+	public String getLastSettingsUsed() {
+		return remember.get("LastSettingsFileName");
 	}
 
-
-	public ObservableList<String> getSettingFileList() {
-		ObservableList<String> obsl = FXCollections.observableArrayList();
-		obsl.addAll(fileList);
-		System.out.println("TEST");
-		for (String string : obsl) {
-			System.out.println(string);
-		}
-		for (String string : fileList) {
-			System.out.println(string);
-		}
-		return obsl;
+	public int setCurrentTab(int i) {
+		System.out.println("Current tab is " +i);
+		currentTab=i;
+		return currentTab;
 	}
 
-
-	public void deleteSettingsFile(String fileName) {
-		if(fileSettingsObsList.contains(fileName))
-			fileSettingsObsList.remove(fileName);
-		File toBeRemoved = new File("./SettingsFiles/"+fileName);
-		if(!toBeRemoved.delete()) 
-			System.out.println("Failed to remove file " + fileName);
-		else 
-			System.out.println("File " + fileName + " has been removed from the system.");
+	public void stop() {
+		this.setStopFlag(true);
+		this.setTimeStep(0);	
+		this.setPlaySpeed(1.0);
+		setChanged();
+		notifyObservers("PlaySpeed");
 	}
 
+	public float getMinVal(String selectedItem) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	public float getMaxVal(String selectedItem) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 
 }
 

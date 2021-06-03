@@ -84,4 +84,18 @@ public class SimpleAnomalyDetector implements TimeSeriesAnomalyDetector {
 	public List<CorrelatedFeatures> getNormalModel(){
 		return corList;
 	}
+	
+	@Override
+	public GraphStruct display(String colName) {
+		GraphStruct ret = new GraphStruct();
+		for (CorrelatedFeatures cf : corList) {
+			if (cf.feature1.equals(colName)) {
+				ret.setL(cf.lin_reg);
+				ret.setStr("LR,"+cf.feature1 + "," + cf.feature2);
+			}
+		}
+		//System.out.println("TESTING" + ret.getStr());
+		return ret;
+		
+	}
 }

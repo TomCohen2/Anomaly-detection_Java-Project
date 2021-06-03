@@ -19,13 +19,15 @@ public class Main extends Application {
 			Model model = new Model();
 			//model.saveSettings("C:\\Users\\blind\\git\\PTM2Project\\EyalsSettings.txt");
 			//model.loadSettings("EyalsSettings.txt");
-			//model.openCSVFile("C:\\Users\\blind\\git\\PTM2Project\\anomaly_flight.csv");
+			model.openCSVFile("C:\\Users\\blind\\git\\PTM2Project\\reg_flight.csv");
+			//model.initAnomalyTS("C:\\Users\\blind\\git\\PTM2Project\\anomaly_flight.csv"););
 			ViewModel vm = new ViewModel(model);
 			vm.initialize();
 			wc.setViewModel(vm);
+			//wc.paintJoystick();
 			
 			
-			Scene scene = new Scene(root,430,361);
+			Scene scene = new Scene(root,620,530);
 			scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 			primaryStage.setScene(scene);
 			primaryStage.show();

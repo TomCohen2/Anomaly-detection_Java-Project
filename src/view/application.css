@@ -1,1 +1,17 @@
-/* JavaFX CSS - Leave this comment until you have at least create one rule which uses -fx-Property */
+.default-color1.chart-series-line { -fx-stroke: transparent; }
+.default-color0.chart-series-line { -fx-stroke: red; }
+
+.default-color1.chart-line-symbol { 
+    -fx-background-color: transparent, MediumBlue;
+   	-fx-background-size: 0.2;
+}
+.default-color0.chart-line-symbol { 
+    -fx-background-color: transparent, transparent; 
+}
+
+.default-color1.chart-legend-item-symbol{
+    -fx-background-color: MediumBlue;
+ }
+.default-color0.chart-legend-item-symbol{
+    -fx-background-color: red;
+ }
