@@ -10,6 +10,6 @@ pitch,29
 yaw,20
 ---
 sampleRate,10
+anomalyFlightFilePath,C:\Users\blind\git\PTM2Project\anomaly_flight.csv
 validFlightFilePame,C:\Users\blind\git\PTM2Project\reg_flight.csv
 algorithm,C:\Users\blind\git\PTM2Project\myAlgo.Class
-anomalyFlightFilePath,C:\Users\blind\git\PTM2Project\anomaly_flight.csv

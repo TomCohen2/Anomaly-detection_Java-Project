@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.shape.Rectangle?>
+
+<AnchorPane prefHeight="164.0" prefWidth="169.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="view.JoystickController">
+   <children>
+      <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#ffffff00" height="160.0" stroke="#969696" strokeType="INSIDE" width="165.0" AnchorPane.bottomAnchor="2.0" AnchorPane.leftAnchor="2.0" AnchorPane.rightAnchor="2.0" AnchorPane.topAnchor="2.0" />
+      <Canvas fx:id="canvas" height="122.0" layoutX="29.0" layoutY="18.0" width="118.0" />
+      <Slider fx:id="ThrottleSlider" blockIncrement="0.1" layoutX="10.0" layoutY="33.0" max="1.0" nodeOrientation="RIGHT_TO_LEFT" orientation="VERTICAL" prefHeight="92.0" prefWidth="14.0" showTickLabels="true" showTickMarks="true" />
+      <Slider fx:id="RudderSlider" blockIncrement="0.1" layoutX="29.0" layoutY="126.0" max="1.0" min="-1.0" prefHeight="14.0" prefWidth="108.0" showTickLabels="true" showTickMarks="true">
+         <padding>
+            <Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
+         </padding>
+      </Slider>
+      <Label layoutX="63.0" layoutY="141.0" text="Rudder" />
+      <Label layoutX="-10.0" layoutY="70.0" rotate="90.0" text="Throttle" />
+   </children>
+</AnchorPane>

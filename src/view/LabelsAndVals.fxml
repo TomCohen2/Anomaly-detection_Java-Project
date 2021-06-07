@@ -24,8 +24,8 @@
       <AnchorPane layoutY="445.0" prefHeight="73.0" prefWidth="620.0">
          <children>
             <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#ffffff00" height="80.0" layoutX="3.0" layoutY="2.0" stroke="#969696" strokeType="INSIDE" width="614.0" />
-            <Label fx:id="maxTimeStep" layoutX="560.0" layoutY="28.0" text="Label" />
-            <Label fx:id="CurTimeStep" layoutX="506.0" layoutY="28.0" text="Label" />
+            <Label fx:id="maxTimeStep" layoutX="560.0" layoutY="28.0" text="Max" />
+            <Label fx:id="CurTimeStep" layoutX="506.0" layoutY="28.0" text="Cur" />
             <Button layoutX="168.0" layoutY="25.0" mnemonicParsing="false" onMouseClicked="#play" text="Play" />
             <Button layoutX="213.0" layoutY="25.0" mnemonicParsing="false" onMouseClicked="#pause" text="Pause" />
             <Slider fx:id="timeStepSlider" blockIncrement="1.0" layoutX="19.0" layoutY="51.0" max="200.0" onMousePressed="#pause" onMouseReleased="#play" prefHeight="14.0" prefWidth="582.0" />
@@ -45,6 +45,7 @@
             <content>
               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="346.0" prefWidth="579.0">
                      <children>
+                        <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#1f93ff00" height="312.0" layoutX="179.0" layoutY="22.0" stroke="#969696" strokeType="INSIDE" width="269.0" />
                       
                         <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#ffffff00" height="160.0" layoutX="452.0" layoutY="3.0" stroke="#969696" strokeType="INSIDE" width="165.0" />
                         <AnchorPane layoutX="434.0" layoutY="147.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="270.0" prefWidth="200.0" scaleX="0.85" scaleY="0.82">
@@ -155,15 +156,15 @@
                         <Slider fx:id="RudderSlider" blockIncrement="0.1" layoutX="481.0" layoutY="126.0" max="1.0" min="-1.0" prefHeight="14.0" prefWidth="108.0" showTickLabels="true" showTickMarks="true" />
                         <Label layoutX="515.0" layoutY="143.0" text="Rudder" />
                         <Label layoutX="442.0" layoutY="67.0" rotate="270.0" text="Throttle" />
-                        <CheckBox fx:id="Simulator" layoutX="30.0" layoutY="353.0" mnemonicParsing="false" text="FlightGear Simulator" />
+                        <CheckBox fx:id="Simulator" layoutX="186.0" layoutY="317.0" mnemonicParsing="false" text="FlightGear Simulator" />
                         <Button layoutX="30.0" layoutY="313.0" mnemonicParsing="false" onAction="#openCSVFile" prefHeight="25.0" prefWidth="105.0" text="Choose CSV File" />
                         <Button fx:id="NewSettingsFile" layoutX="279.0" layoutY="208.0" mnemonicParsing="false" onAction="#newSettingsFile" prefHeight="25.0" prefWidth="110.0" text="New Settings File" />
                         <Button fx:id="LoadSettingsFile" layoutX="279.0" layoutY="241.0" mnemonicParsing="false" onAction="#selectSettings" prefHeight="25.0" prefWidth="110.0" text="Load Settings File" />
                         <Label layoutX="280.0" layoutY="37.0" text="Existing Settings files" />
                         <ListView fx:id="SettingsFilesListView" layoutX="252.0" layoutY="63.0" prefHeight="138.0" prefWidth="168.0" />
                         <Button layoutX="184.0" layoutY="84.0" mnemonicParsing="false" onAction="#deleteSettingsFile" prefHeight="75.0" prefWidth="54.0" text="Delete" />
-                        <Label layoutX="239.0" layoutY="294.0" prefHeight="18.0" prefWidth="91.0" text="Settings loaded:" />
-                        <Label fx:id="LoadedSettings" layoutX="334.0" layoutY="294.0" text="Loaded Settings" />
+                        <Label layoutX="192.0" layoutY="293.0" prefHeight="18.0" prefWidth="91.0" text="Settings loaded:" />
+                        <Label fx:id="LoadedSettings" layoutX="280.0" layoutY="293.0" text="Loaded Settings" />
                      </children>
                   </AnchorPane>
             </content>

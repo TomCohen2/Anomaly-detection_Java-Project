@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<java version="15.0.2" class="java.beans.XMLDecoder">
+ <object class="java.util.HashMap">
+  <void method="put">
+   <string>LastSettingsFileName</string>
+   <string>EyalsSettings.txt</string>
+  </void>
+  <void method="put">
+   <string>TrainFileName</string>
+   <string>C:\Users\blind\git\PTM2Project\reg_flight.csv</string>
+  </void>
+ </object>
+</java>

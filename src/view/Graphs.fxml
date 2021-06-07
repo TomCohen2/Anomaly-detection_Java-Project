@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.shape.Rectangle?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="view.GraphsController">
+   <children>
+      <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#ffffff00" height="385.0" layoutX="2.7000000029802322" stroke="#969696" width="230.0" AnchorPane.bottomAnchor="2.0" AnchorPane.leftAnchor="2.0" AnchorPane.rightAnchor="2.0" AnchorPane.topAnchor="2.0" />
+      <LineChart fx:id="Feature1LC" alternativeRowFillVisible="false" animated="false" horizontalGridLinesVisible="false" horizontalZeroLineVisible="false" layoutX="6.0" maxHeight="117.5" maxWidth="117.5" minHeight="117.5" minWidth="117.5" prefHeight="117.5" prefWidth="117.5" verticalGridLinesVisible="false" verticalZeroLineVisible="false">
+         <xAxis>
+            <NumberAxis animated="false" forceZeroInRange="false" minorTickVisible="false" side="BOTTOM" tickLabelsVisible="false" tickMarkVisible="false" />
+         </xAxis>
+         <yAxis>
+            <NumberAxis forceZeroInRange="false" minorTickVisible="false" side="LEFT" tickLabelsVisible="false" tickMarkVisible="false" />
+         </yAxis>
+      </LineChart>
+      <LineChart fx:id="Feature2LC" alternativeRowFillVisible="false" animated="false" horizontalGridLinesVisible="false" horizontalZeroLineVisible="false" layoutX="117.0" maxHeight="117.5" maxWidth="117.5" minHeight="117.5" minWidth="117.5" prefHeight="117.5" prefWidth="117.5" verticalGridLinesVisible="false" verticalZeroLineVisible="false">
+         <xAxis>
+            <NumberAxis animated="false" forceZeroInRange="false" minorTickVisible="false" side="BOTTOM" tickLabelsVisible="false" tickMarkVisible="false" />
+         </xAxis>
+         <yAxis>
+            <NumberAxis animated="false" forceZeroInRange="false" minorTickVisible="false" side="LEFT" tickLabelsVisible="false" tickMarkVisible="false" />
+         </yAxis>
+      </LineChart>
+      <LineChart fx:id="LineChart" alternativeRowFillVisible="false" animated="false" horizontalGridLinesVisible="false" horizontalZeroLineVisible="false" layoutX="6.200000002980232" layoutY="140.5" prefHeight="200.0" prefWidth="225.0" verticalGridLinesVisible="false" verticalZeroLineVisible="false">
+         <xAxis>
+            <NumberAxis animated="false" forceZeroInRange="false" minorTickVisible="false" side="BOTTOM" tickLabelsVisible="false" tickMarkVisible="false" fx:id="xAxis" />
+         </xAxis>
+         <yAxis>
+            <NumberAxis fx:id="yAxis" animated="false" forceZeroInRange="false" minorTickVisible="false" side="LEFT" tickLabelsVisible="false" tickMarkVisible="false" />
+         </yAxis>
+      </LineChart>
+   </children>
+</AnchorPane>

@@ -85,7 +85,7 @@ public class LabelsAndValsController extends Observable{// implements Initializa
 	Label TrainFileName;
 	@FXML
 	Label TestFileName;
-	@FXML 
+	@FXML
 	Label LoadedSettings;
 
 	@FXML
@@ -169,7 +169,6 @@ public class LabelsAndValsController extends Observable{// implements Initializa
 		//SettingsFilesListView.itemsProperty().bind(viewModel.getList("SettingsFileList"));
 		timeStepSlider.setMax(viewModel.getMaxTimeStep());
 		timeStepSlider.setMin(0);
-		viewModel.getIProperty("Tabs").bind(TabPanel.getSelectionModel().selectedIndexProperty());
 //		viewModel.bindElevator(ElevatorVal.textProperty());
 //		viewModel.bindRudder(RudderVal.textProperty());
 //		viewModel.bindThrottle(ThrottleVal.textProperty());

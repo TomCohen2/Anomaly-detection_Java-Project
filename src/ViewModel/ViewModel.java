@@ -174,7 +174,6 @@ public class ViewModel implements Observer{
 			}
 			else if(arg.equals("Settings")) {
 				Platform.runLater(()->{
-					System.out.println("Woops "+ this.model.getLastSettingsUsed());
 					getSProperty("LoadedSettings").set(this.model.getLastSettingsUsed());
 				});
 			}
@@ -357,7 +356,8 @@ public class ViewModel implements Observer{
 //	}
 
 	public int getMaxTimeStep() {
-		return model.getMaxLines();
+		//return model.getMaxLines();
+		return 1000;
 	}
 
 	public void newSettingsFile() {

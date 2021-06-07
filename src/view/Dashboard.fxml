@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.shape.Line?>
+<?import javafx.scene.shape.Rectangle?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="276.0" prefWidth="197.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="view.DashboardController">
+   <children>
+      <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#ffffff7a" height="272.0" stroke="#969696" strokeType="INSIDE" width="193.0" AnchorPane.bottomAnchor="2.0" AnchorPane.leftAnchor="2.0" AnchorPane.rightAnchor="2.0" AnchorPane.topAnchor="2.0" />
+      <Label layoutX="15.0" layoutY="7.0" text="Aileron" textFill="#3700ff">
+         <font>
+            <Font name="System Bold" size="14.0" />
+         </font>
+      </Label>
+      <Label layoutX="15.0" layoutY="37.2" text="Elevator" textFill="#3700ff">
+         <font>
+            <Font name="System Bold" size="14.0" />
+         </font>
+      </Label>
+      <Label layoutX="15.0" layoutY="67.4" text="Rudder" textFill="#3700ff">
+         <font>
+            <Font name="System Bold" size="14.0" />
+         </font>
+      </Label>
+      <Label layoutX="15.0" layoutY="97.6" text="Throttle" textFill="#3700ff">
+         <font>
+            <Font name="System Bold" size="14.0" />
+         </font>
+      </Label>
+      <Label layoutX="15.0" layoutY="127.8" text="Flight Height" textFill="#3700ff">
+         <font>
+            <Font name="System Bold" size="14.0" />
+         </font>
+      </Label>
+      <Label layoutX="15.0" layoutY="158.0" text="Flight Speed" textFill="#3700ff">
+         <font>
+            <Font name="System Bold" size="14.0" />
+         </font>
+      </Label>
+      <Label layoutX="15.0" layoutY="188.2" text="Roll" textFill="#3700ff">
+         <font>
+            <Font name="System Bold" size="14.0" />
+         </font>
+      </Label>
+      <Label layoutX="15.0" layoutY="218.4" text="Pitch" textFill="#3700ff">
+         <font>
+            <Font name="System Bold" size="14.0" />
+         </font>
+      </Label>
+      <Label layoutX="15.0" layoutY="248.6" text="Yaw" textFill="#3700ff">
+         <font>
+            <Font name="System Bold" size="14.0" />
+         </font>
+      </Label>
+      <Line endX="100.0" layoutX="94.0" layoutY="120.8" startX="-91.99996948242188" startY="1.52587890625E-5" />
+      <Line endX="100.0" layoutX="94.0" layoutY="181.2" startX="-91.99996948242188" startY="1.52587890625E-5" />
+      <Line endX="100.0" layoutX="94.0" layoutY="151.0" startX="-91.99996948242188" startY="1.52587890625E-5" />
+      <Line endX="100.0" layoutX="94.0" layoutY="211.4" startX="-91.99996948242188" startY="1.52587890625E-5" />
+      <Line endX="100.0" layoutX="94.0" layoutY="241.6" startX="-91.99996948242188" startY="1.52587890625E-5" />
+      <Line endX="100.0" layoutX="94.0" layoutY="90.6" startX="-91.99996948242188" startY="1.52587890625E-5" />
+      <Line endX="100.0" layoutX="94.0" layoutY="60.4" startX="-91.99996948242188" startY="1.52587890625E-5" />
+      <Line endX="100.0" layoutX="94.0" layoutY="30.2" startX="-91.99996948242188" startY="1.1444091796875E-5" />
+      <Label fx:id="AileronVal" layoutX="155.0" layoutY="7.0" text="0.0" textFill="RED">
+         <font>
+            <Font name="System Bold" size="14.0" />
+         </font>
+      </Label>
+      <Label fx:id="ElevatorVal" layoutX="155.0" layoutY="37.2" text="0.0" textFill="RED">
+         <font>
+            <Font name="System Bold" size="14.0" />
+         </font>
+      </Label>
+      <Label fx:id="RudderVal" layoutX="155.0" layoutY="67.4" text="0.0" textFill="RED">
+         <font>
+            <Font name="System Bold" size="14.0" />
+         </font>
+      </Label>
+      <Label fx:id="ThrottleVal" layoutX="155.0" layoutY="97.6" text="0.0" textFill="RED">
+         <font>
+            <Font name="System Bold" size="14.0" />
+         </font>
+      </Label>
+      <Label fx:id="FlightHeightVal" layoutX="155.0" layoutY="127.8" text="0.0" textFill="RED">
+         <font>
+            <Font name="System Bold" size="14.0" />
+         </font>
+      </Label>
+      <Label fx:id="FlightSpeedVal" layoutX="155.0" layoutY="158.0" text="0.0" textFill="RED">
+         <font>
+            <Font name="System Bold" size="14.0" />
+         </font>
+      </Label>
+      <Label fx:id="RollVal" layoutX="155.0" layoutY="188.2" text="0.0" textFill="RED">
+         <font>
+            <Font name="System Bold" size="14.0" />
+         </font>
+      </Label>
+      <Label fx:id="PitchVal" layoutX="155.0" layoutY="218.4" text="0.0" textFill="RED">
+         <font>
+            <Font name="System Bold" size="14.0" />
+         </font>
+      </Label>
+      <Label fx:id="YawVal" layoutX="155.0" layoutY="248.6" text="0.0" textFill="RED">
+         <font>
+            <Font name="System Bold" size="14.0" />
+         </font>
+      </Label>
+   </children>
+</AnchorPane>

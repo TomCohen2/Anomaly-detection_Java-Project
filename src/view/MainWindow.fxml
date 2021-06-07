@@ -1,0 +1,46 @@
+
+
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import view.Joystick?>
+<?import view.Dashboard?>
+<?import view.Settings?>
+<?import view.FeatureList?>
+<?import view.Graphs?>
+<?import view.Algorithms?>
+<?import view.Player?>
+
+<AnchorPane prefHeight="530.0" prefWidth="620.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/16" fx:controller="view.MainWindowController">
+	<children>
+		<TabPane fx:id="TabPanel" layoutY="28.0" prefHeight="421.0" prefWidth="620.0" tabClosingPolicy="UNAVAILABLE">
+			<tabs>
+				<Tab text="Simulator">
+            		<content>
+            			<AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     		<children>
+								<Joystick fx:id="joystick" layoutX="450.0" prefHeight="164.0" prefWidth="169.0"/>
+								<Dashboard fx:id="dashboard" layoutX="434.0" layoutY="140.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="270.0" prefWidth="200.0" scaleX="0.85" scaleY="0.82"/>
+            					<Settings fx:id="settings" layoutX="194.0" layoutY="38.0" prefHeight="316.0" prefWidth="254.0"/>
+            				</children>
+            			</AnchorPane>
+            		</content>
+				</Tab>	
+				<Tab text="Anomaly Detection">
+            		<content>
+            			<AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     		<children>
+								<Algorithms fx:id="algorithms" layoutX="436.0" layoutY="1.0"/>
+            					<Graphs fx:id="graphs" layoutX="203.0" layoutY="1.0"/>
+            					<FeatureList fx:id="featureList" layoutY="1.0"/>
+            				</children>
+            			</AnchorPane>
+              		</content>
+          		</Tab>
+        	</tabs>
+      </TabPane>
+      <Player fx:id="player" layoutY="445.0" prefHeight="84.0" prefWidth="618.0"/>
+      </children>
+</AnchorPane>
+
+
