@@ -19,7 +19,7 @@ public class Main extends Application {
 			Model model = new Model();
 			//model.saveSettings("C:\\Users\\blind\\git\\PTM2Project\\EyalsSettings.txt");
 			//model.loadSettings("EyalsSettings.txt");
-			model.openCSVFile("C:\\Users\\blind\\git\\PTM2Project\\reg_flight.csv");
+			//model.openCSVFile("C:\\Users\\blind\\git\\PTM2Project\\reg_flight.csv");
 			//model.initAnomalyTS("C:\\Users\\blind\\git\\PTM2Project\\anomaly_flight.csv"););
 			ViewModel vm = new ViewModel(model);
 			vm.initialize();

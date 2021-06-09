@@ -107,7 +107,7 @@ public class ViewModel implements Observer{
 		
 		StringProperty temp = getSProperty("PlaySpeed");
 		temp.addListener((obd,oldVal,newVal)->{
-		if(!temp.get().equals("") && !temp.get().equals("0") && !temp.get().equals("0.0") && !temp.get().equals("0.") && temp.get().matches("\\d+"))
+		if(!temp.get().equals("") && !temp.get().equals("0") && !temp.get().equals("0.0") && !temp.get().equals("0."))// && temp.get().matches("\\d+"))
 			model.setPlaySpeed(Double.parseDouble(temp.get()));
 		else
 			model.setPlaySpeed(1.0); // awful patch.
@@ -136,12 +136,16 @@ public class ViewModel implements Observer{
 					getList("Features").set(this.model.getFeatureList());
 					getSProperty("CurTimeStep").set(model.calculateTime(model.getTimeStep()));
 					getSProperty("MaxTimeStep").set(model.calculateMaxTimeStep());
+					System.out.println(getList("Features").asString());
+					System.out.println("Done");
 				});
 			}
 			
 			else if(arg.equals("TestFile")) { // New test file has been selected
 				Platform.runLater(()->{
 					getSProperty("TestFileName").set(this.model.getTestFileName());
+					this.model.getFeatureList();
+					
 				});
 			}
 			else if(arg.equals("TimeStep")) { // TimeStep has been changed.
@@ -154,7 +158,7 @@ public class ViewModel implements Observer{
 					getDProperty("Throttle").set(this.model.getThrottleVal());
 					getDProperty("FlightHeight").set(this.model.getFlightHeightVal());
 					getDProperty("FlightSpeed").set(this.model.getFlightSpeedVal());
-					getDProperty("Roll").set(this.model.getRollVal());
+					getDProperty("R").set(this.model.getRollVal());
 					getDProperty("Pitch").set(this.model.getPitchVal());
 					getDProperty("Yaw").set(this.model.getYawVal());
 					getSProperty("MaxTimeStep").set((this.model.calculateMaxTimeStep()));
@@ -177,6 +181,7 @@ public class ViewModel implements Observer{
 					getSProperty("LoadedSettings").set(this.model.getLastSettingsUsed());
 				});
 			}
+			
 			//	VM_SettingsFilesList.set(this.model.getFileSettingsObsList());
 			//	VM_FeaturesList.set(this.model.getFeatureList());
 		}
@@ -276,19 +281,17 @@ public class ViewModel implements Observer{
 
 	public void initialize() {
 		getList("SettingsFileList").set(this.model.getFileSettingsObsList());;
-		getList("FeaturesList").set(this.model.getFeatureList());
 		getList("AlgoFiles").set(this.model.getAlgoList());
 		getSProperty("LastSettings").set(this.model.getLastSettingsUsed());
 		getSProperty("PlaySpeed").set(""+this.model.getPlaySpeed());
 	}
 	
 	public void play() {
-		System.out.println("Play from ViewModel!");
-		if(!model.getPlayFlag()) {
-		model.setPlayFlag(true);
+//		System.out.println("Play from ViewModel!");
+//		if(!model.getPlayFlag()) {
+//		model.setPlayFlag(true);
 		model.play();
 		}
-	}
 	
 	public void pause() {
 		model.pause();
@@ -296,28 +299,24 @@ public class ViewModel implements Observer{
 
 	public void stop() {
 		model.stop();
-		
 	}
 	
 	public void fastForward() {
 		model.fastForward();
-		
 	}
 
 	public void superFastForward() {
 		model.superFastForward();
-		
 	}
 
 	public void rewind() {
 		model.rewind();
-		
 	}
 
 	public void fastRewind() {
 		model.fastRewind();
-		
 	}
+	
 //	public void bindMaxTimeStep(StringProperty textProperty) {
 //		textProperty.bind(this.VM_MaxTimeStep);
 //		
@@ -367,6 +366,9 @@ public class ViewModel implements Observer{
 	
 	public void openCSVFile() {
 		model.newCSVFile();
+		getList("Features").set(this.model.getFeatureList());
+		this.model.getFeatureList().forEach((a)->System.out.println(a));
+		//getList("Feature")
 	}
 
 //	public void bindFileSettingsListView(ObjectProperty<ObservableList<String>> itemsProperty) {

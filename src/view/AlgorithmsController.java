@@ -40,6 +40,7 @@ public class AlgorithmsController {
 	public void uploadTrainCSV() {
 		if(onUpTrainCSV!=null){
 			onUpTrainCSV.run();
+			AlgoFilesListView.refresh();
 		}
 	}
 	

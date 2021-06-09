@@ -2,6 +2,7 @@ package test;
 
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class TimeSeries {
@@ -89,6 +90,27 @@ public class TimeSeries {
 		data = tempData;
 		setNumOfRows(getNumOfRows()+1);
 		
+	}
+	public void addFeature(float[] data,String name) {
+		if (this.numOfFeatures == 0) {
+			this.features = new String[1];
+			this.features[0] = name;
+			this.data = new float[1][];
+			this.numOfFeatures = 1;
+			this.numOfRows = data.length;
+			this.data[0] = new float[this.numOfRows];
+			for (int i = 0; i < this.numOfRows; i++) {
+				this.data[0][i] = data[i];
+			}
+		} else {
+			this.features = Arrays.copyOf(this.features, this.numOfFeatures + 1);
+			this.features[this.numOfFeatures] = name;
+			this.data = Arrays.copyOf(this.data, this.numOfFeatures + 1);
+			this.data[this.numOfFeatures] = new float[this.numOfRows];
+			for (int i = 0; i < this.numOfRows; i++)
+				this.data[this.numOfFeatures][i] = data[i];
+			this.numOfFeatures++;
+		}
 	}
 	
 }

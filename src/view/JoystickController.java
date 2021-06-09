@@ -18,7 +18,7 @@ public class JoystickController {
 		
 		void paint() {
 			if (paintJoystick!=null)
-				new Thread(()->paintJoystick.run()).start();
+				paintJoystick.run();
 		}
 		
 		void bindThrottleSlider(DoubleProperty throttle) {

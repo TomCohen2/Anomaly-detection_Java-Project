@@ -31,6 +31,8 @@ public class MainWindowController {
 	
 	public void setViewModel(ViewModel viewModel){
 		this.viewModel = viewModel;
+		
+		
 		//binding tabs for some system logic
 		viewModel.getIProperty("Tabs").bind(TabPanel.getSelectionModel().selectedIndexProperty());
 						//Settings
@@ -61,6 +63,7 @@ public class MainWindowController {
 		
 		//binding FeatureList
 		featureList.controller.addAll(viewModel.getFeatureList());
+		
 		//binding Player panel
 		player.controller.bindCurTimeStep(viewModel.getSProperty("CurTimeStep"));
 		player.controller.bindMaxTimestep(viewModel.getSProperty("MaxTimeStep"));
@@ -79,6 +82,7 @@ public class MainWindowController {
 		algorithms.controller.onSelectAlgo = ()->viewModel.algoSelected(algorithms.controller.getSelectedAlgo());
 		algorithms.controller.onUpTrainCSV = ()->viewModel.openCSVFile();
 		algorithms.controller.onUpTestCSV = ()->viewModel.uploadTestFile();
+		algorithms.controller.addToAlgoList(viewModel.getAlgorithms());
 		
 		player.controller.onPause = ()->viewModel.pause();
 		player.controller.onStop = ()->viewModel.stop();
@@ -88,24 +92,25 @@ public class MainWindowController {
 		player.controller.onFRewind = ()->viewModel.fastRewind();
 		player.controller.timeStepSlider.setMin(0);
 		player.controller.timeStepSlider.setMax(viewModel.getMaxTimeStep());
-		player.controller.onPlay = ()->{viewModel.play();
-		new Thread(()->joystick.controller.paint()).start();
+		player.controller.onPlay = ()->{
+			viewModel.play();
+			new Thread(()->joystick.controller.paint()).start();
 		};
 		
 		joystick.controller.paintJoystick = ()->{
-		double radius = 30.0;
-		while(true) {
-		GraphicsContext gc = joystick.controller.canvas.getGraphicsContext2D();
-		double mx = joystick.controller.canvas.getWidth()/2; //mx = middle x
-		double my = joystick.controller.canvas.getHeight()/2; //my = middle y
-		double jx = Double.parseDouble(dashboard.controller.AileronVal.textProperty().get());;
-		double jy = Double.parseDouble(dashboard.controller.ElevatorVal.textProperty().get());;
-		gc.clearRect(0, 0, joystick.controller.canvas.getWidth(), joystick.controller.canvas.getHeight());
-		gc.setFill(Paint.valueOf("BLACK"));
-		gc.fillOval(mx-radius/2+jx*radius, my-radius/2+(-jy*radius), radius, radius);
-		//gc.strokeOval(mx/(jx-mx)-15, my/(jy-my)-15, 30, 30);
-		gc.strokeOval(mx-radius, my-radius, 2*radius, 2*radius);
-		try {Thread.sleep(50);} catch (InterruptedException e) {}
+			double radius = 30.0;
+			while(true) {
+			GraphicsContext gc = joystick.controller.canvas.getGraphicsContext2D();
+			double mx = joystick.controller.canvas.getWidth()/2; //mx = middle x
+			double my = joystick.controller.canvas.getHeight()/2; //my = middle y
+			double jx = Double.parseDouble(dashboard.controller.AileronVal.textProperty().get());;
+			double jy = Double.parseDouble(dashboard.controller.ElevatorVal.textProperty().get());;
+			gc.clearRect(0, 0, joystick.controller.canvas.getWidth(), joystick.controller.canvas.getHeight());
+			gc.setFill(Paint.valueOf("BLACK"));
+			gc.fillOval(mx-radius/2+jx*radius, my-radius/2+(-jy*radius), radius, radius);
+		//	gc.strokeOval(mx/(jx-mx)-15, my/(jy-my)-15, 30, 30);
+			gc.strokeOval(mx-radius, my-radius, 2*radius, 2*radius);
+			try {Thread.sleep(50);} catch (InterruptedException e) {}
 		}};
 		
 		featureList.controller.featSelected = ()->{

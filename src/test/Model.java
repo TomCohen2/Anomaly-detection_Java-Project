@@ -13,21 +13,21 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Scanner;
-import java.util.concurrent.ArrayBlockingQueue;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.chart.XYChart;
-import javafx.scene.chart.XYChart.Data;
 import javafx.scene.chart.XYChart.Series;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -47,25 +47,14 @@ public class Model extends Observable{
 	int sampleRate;
 	int timeStep;
 	int currentTab;
-	Thread t;
 	volatile AtomicBoolean stopFlag;
 	volatile AtomicBoolean isSimulated;
 	volatile AtomicBoolean rewindFlag;
 	volatile AtomicBoolean playFlag;
 	volatile AtomicBoolean secondPlayFlag;
-	
+	Timer timer = null;
 	String selectedAlgorithm;
 	double playSpeed = 1;
-
-	public double getPlaySpeed() {
-		return playSpeed;
-	}
-
-	public void setPlaySpeed(double playSpeed) {
-		this.playSpeed = playSpeed;
-		System.out.println("Playspeed has changed to " + playSpeed);
-	}
-
 	double AileronVal;
 	double ElevatorVal;
 	double RudderVal;
@@ -106,8 +95,7 @@ public class Model extends Observable{
 					fileSettingsObsList.add(listOfFiles[i].getName());
 				}
 			}
-		}
-		
+		}		
 		//AlgoList
 		algoObsList.add("Linear-Regression");
 		algoObsList.add("Z-Score");
@@ -124,6 +112,17 @@ public class Model extends Observable{
 		File xmlMap = new File("map.XML");
 		if(xmlMap.exists()) loadMapFromDisk();
 		loadSettings(remember.get("LastSettingsFileName"));
+	}
+	
+	public double getPlaySpeed() {
+		return playSpeed;
+	}
+
+	public void setPlaySpeed(double playSpeed) {
+		this.playSpeed = playSpeed;
+		setChanged();
+		notifyObservers("PlaySpeed");
+		System.out.println("Playspeed has changed to " + playSpeed);
 	}
 	
 	private void saveMapToDisk() {
@@ -169,7 +168,7 @@ public class Model extends Observable{
 	}
 
 	
-	public void play() {
+	public void play1() {
 		setStopFlag(false);
 		System.out.println("Play from Model! playflag = " + playFlag.get() + "StopFlag = " + stopFlag.get());
 		if(isSimulated.get()) {
@@ -213,7 +212,43 @@ public class Model extends Observable{
 		});
 	}
 	
+	public void play() {
+		Platform.runLater(()->{
+			
+		if(rewindFlag.get())
+			rewindFlag.set(false);
+		if(timer==null) {
+			timer = new Timer();
+			timer.scheduleAtFixedRate(new TimerTask() {
+				@Override
+				public void run() {
+					if(!rewindFlag.get())
+						setTimeStep(timeStep + 1);
+					else
+						setTimeStep(timeStep - 1);
+				
+				}
+			}, 0, (long)(1000/(playSpeed*sampleRate)));
+		}
+		});
+	}
 	
+	public void pause() {
+		if(timer!=null) {
+			timer.cancel();
+			timer = null;
+		}
+	}
+	
+	public void stop() {
+		if(timer!=null) {
+			timer.cancel();
+			timer = null;
+		}
+		timeStep = 0;
+		setChanged();
+		notifyObservers("TimeStep");
+	}
 	
 	public boolean getSecondPlayFlag() {
 		return secondPlayFlag.get();
@@ -231,7 +266,7 @@ public class Model extends Observable{
 		this.playFlag.set(b);
 	}
 
-	public void pause() {
+	public void pause1() {
 		System.out.println("Hello from pause model");
 		es.submit(()-> {
 			setStopFlag(true);
@@ -240,19 +275,16 @@ public class Model extends Observable{
 	public void fastForward() {
 		DecimalFormat df = new DecimalFormat("###.##");
 		this.setPlaySpeed(Double.parseDouble(df.format(playSpeed+0.1)));
-		setChanged();
-		notifyObservers("PlaySpeed");
 	}
 
 	public void superFastForward() {
 		DecimalFormat df = new DecimalFormat("###.##");
 		this.setPlaySpeed(Double.parseDouble(df.format(playSpeed+0.5)));
-		setChanged();
-		notifyObservers("PlaySpeed");
 	}
 
 	public void rewind() {
-		setRewindFlag(true);
+		//if(!rewindFlag.get())
+			setRewindFlag(true);
 		
 	}
 
@@ -265,14 +297,18 @@ public class Model extends Observable{
 	}
 
 	public void fastRewind() {
-		rewind();
-		setPlaySpeed(playSpeed+0.5);
+			rewind();
+		DecimalFormat df = new DecimalFormat("###.##");
+		this.setPlaySpeed(Double.parseDouble(df.format(playSpeed+0.5)));
+		//setChanged();
+		//notifyObservers("PlaySpeed");
 		
 	}
+	
 	private void FillFactory() {
 		Factory.put("Linear-Regression", new SimpleAnomalyDetector());
 		Factory.put("Z-Score", new ZscoreAnomalyDetectorV2());
-		Factory.put("Hybrid", new HybridAnomalyDetector());
+		Factory.put("Hybrid", new HybridAnomalyDetector2());
 		
 	}
 
@@ -484,6 +520,7 @@ public class Model extends Observable{
 			}
 		}
 		featureObsList.addAll(Arrays.asList(regTS.getFeatures()));
+		featureObsList.forEach((a)->System.out.println(a));
 		timeStep = 0;
 		setChanged();
 		notifyObservers("TrainFile");
@@ -524,7 +561,7 @@ public class Model extends Observable{
 			newCSVFile();
 			return;
 		}
-		remember.put("TrainFileName", file.getPath());
+		remember.put("TrainFilePath", file.getPath());
 		openCSVFile(file.getPath());
 	}
 	
@@ -684,6 +721,7 @@ public class Model extends Observable{
 			for(int i=0;i<temp.length;i++) {
 				//System.out.println(temp[i].x + "," + temp[i].y);
 				test.getPoints().getData().add(new XYChart.Data<>(temp[i].x,temp[i].y));
+				//test.getFeature1Points().getData().add(new XYChart.Data<>(i,temp[i].x));
 				test.getFeature1Points().getData().add(new XYChart.Data<>(i,temp[i].x));
 				test.getFeature2Points().getData().add(new XYChart.Data<>(i,temp[i].y));
 			}
@@ -856,7 +894,7 @@ public class Model extends Observable{
 		return currentTab;
 	}
 
-	public void stop() {
+	public void stop1() {
 		this.setStopFlag(true);
 		this.setTimeStep(0);	
 		this.setPlaySpeed(1.0);
