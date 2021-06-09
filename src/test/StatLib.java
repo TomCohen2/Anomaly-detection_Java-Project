@@ -232,7 +232,7 @@ public class StatLib {
 	}
 
 
-
+	///yaniv
 	public static float distance(Point a, Point b) {
 		return (float) Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2));
 	}
@@ -339,5 +339,8 @@ public class StatLib {
 			points.add(new Point(x[i],y[i]));
 		return points;
 	}
+
+
+
 	
 }

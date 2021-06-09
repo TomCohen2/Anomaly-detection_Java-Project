@@ -30,14 +30,14 @@ public interface TimeSeriesAnomalyDetector {
 		public void setFeature1Points(XYChart.Series<Number, Number> feature1Points) {
 			this.feature1Points = feature1Points;
 		}
+		public void setFeature2Points(XYChart.Series<Number, Number> feature2Points) {
+			this.feature2Points = feature2Points;
+		}
 
 		public XYChart.Series<Number, Number> getFeature2Points() {
 			return feature2Points;
 		}
 
-		public void setFeature2Points(XYChart.Series<Number, Number> feature2Points) {
-			this.feature2Points = feature2Points;
-		}
 
 		public GraphStruct() {
 			this.points = new XYChart.Series<>();
