@@ -20,7 +20,7 @@ public class Circle {
 	}
 	
 	public boolean contains(Point p) {
-		System.out.println("Distance = " + StatLib.dist(center, p) + " Radius = " + radius + " Difference = " + (radius - StatLib.dist(center, p)));
-		return StatLib.dist(center, p) <= radius;
+		System.out.println("Distance = " + StatLib.distance(center, p) + " Radius = " + radius + " Difference = " + (radius - StatLib.distance(center, p)));
+		return StatLib.distance(center, p) <= radius;
 	}
 }

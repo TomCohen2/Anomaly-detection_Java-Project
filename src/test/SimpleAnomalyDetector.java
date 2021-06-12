@@ -79,11 +79,45 @@ public class SimpleAnomalyDetector implements TimeSeriesAnomalyDetector {
 		return alarms;
 	}
 	
+	public void addCor(String feature1 , String feature2 , float cor , Line l , float threshold){
+		if(corList == null)
+			corList = new ArrayList<CorrelatedFeatures>();
+
+		corList.add(new CorrelatedFeatures(feature1,feature2,cor,l,threshold));
+	}
 	
 	
 	public List<CorrelatedFeatures> getNormalModel(){
 		return corList;
 	}
+	
+	
+	public float findMax(float[] arr)
+	{
+		float[] temp = arr.clone();
+		Arrays.sort(temp);
+		return temp[arr.length-1];
+	}
+	
+	
+	//Returns an array of dev value of each point to a line.
+	public float[] devArr(Point[] points, Line l)
+	{
+		float[] arr = new float[points.length];
+		for(int i=0;i<points.length;i++)
+			arr[i] = StatLib.dev(points[i], l);
+		return arr;
+	}
+	
+	//Returns the index of the maximum value of an array.
+	public int maxAt(float[] array){
+		int maxAt = 0;
+		for (int i = 0; i < array.length; i++) 
+		    maxAt = array[i] > array[maxAt] ? i : maxAt;
+		  return maxAt;
+		}
+	
+	
 	
 	@Override
 	public GraphStruct display(String colName) {

@@ -10,7 +10,10 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.MalformedURLException;
 import java.net.Socket;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.net.UnknownHostException;
 import java.text.DecimalFormat;
 import java.util.Arrays;
@@ -37,13 +40,13 @@ public class Model extends Observable{
 	//Settings members
 	static String settingsFolder = "./SettingsFiles/";
 	static String algoFolder = "./AlgoFiles/";
-	
+	String selectedFeature = "";
 	HashMap<String,settingsObj> map;
 	HashMap<String,TimeSeriesAnomalyDetector> Factory;
 	HashMap<String,String> filePathMap, remember;
 	String anomalyFlightFilePath, validFlightFilePath, algorithmFilePath;
 	ObservableList<String> featureObsList,fileSettingsObsList,algoObsList;
-	TimeSeries regTS, anomalyTS;
+	TimeSeries regTS, anomalyTS, selectedTS;
 	int sampleRate;
 	int timeStep;
 	int currentTab;
@@ -64,11 +67,13 @@ public class Model extends Observable{
 	double RollVal;
 	double PitchVal;
 	double YawVal;
-	
+	int maxTime;
+	GraphStruct struct = null;
 	TimeSeriesAnomalyDetector tsad;
 	
 	//ThreadPool
 	ExecutorService es = Executors.newFixedThreadPool(10);
+	private String selectedFlightToDisplay;
 	
 	public Model() {
 		
@@ -120,6 +125,10 @@ public class Model extends Observable{
 
 	public void setPlaySpeed(double playSpeed) {
 		this.playSpeed = playSpeed;
+		if(timer!=null) {
+			timer=null;
+			play();
+		}
 		setChanged();
 		notifyObservers("PlaySpeed");
 		System.out.println("Playspeed has changed to " + playSpeed);
@@ -177,16 +186,7 @@ public class Model extends Observable{
 				connectToSimulator();
 			});
 		}
-		if(currentTab==1) {
-			es.submit(()->{
-					if(selectedAlgorithm.equals(""))
-						tsad = Factory.get("Linear-Regression");
-					else
-						tsad = Factory.get(selectedAlgorithm);
-						tsad.learnNormal(regTS);
-						tsad.detect(anomalyTS);				
-			});
-		}
+
 		es.submit(()->{
 			if(secondPlayFlag.get()) {
 				setRewindFlag(false);
@@ -212,9 +212,11 @@ public class Model extends Observable{
 		});
 	}
 	
+	
+	
 	public void play() {
 		Platform.runLater(()->{
-			
+
 		if(rewindFlag.get())
 			rewindFlag.set(false);
 		if(timer==null) {
@@ -222,17 +224,34 @@ public class Model extends Observable{
 			timer.scheduleAtFixedRate(new TimerTask() {
 				@Override
 				public void run() {
-					if(!rewindFlag.get())
-						setTimeStep(timeStep + 1);
-					else
-						setTimeStep(timeStep - 1);
-				
+					if(!rewindFlag.get()) {
+						if(timeStep<maxTime-1)
+							setTimeStep(timeStep + 1);
+						else
+							pause();
+					}
+					else {
+						if(timeStep>0)
+							setTimeStep(timeStep - 1);
+						else
+							pause();
+					}
+					if (!selectedFeature.equals(""))
+						displayGraphsCall(selectedFeature);
 				}
 			}, 0, (long)(1000/(playSpeed*sampleRate)));
 		}
 		});
 	}
 	
+	public String getSelectedFeature() {
+		return selectedFeature;
+	}
+
+	public void setSelectedFeature(String selectedFeature) {
+		this.selectedFeature = selectedFeature;
+	}
+
 	public void pause() {
 		if(timer!=null) {
 			timer.cancel();
@@ -307,8 +326,8 @@ public class Model extends Observable{
 	
 	private void FillFactory() {
 		Factory.put("Linear-Regression", new SimpleAnomalyDetector());
-		Factory.put("Z-Score", new ZscoreAnomalyDetectorV2());
-		Factory.put("Hybrid", new HybridAnomalyDetector2());
+		Factory.put("Z-Score", new ZscoreAnomalyDetector());
+		Factory.put("Hybrid", new HybridAnomalyDetector());
 		
 	}
 
@@ -567,7 +586,7 @@ public class Model extends Observable{
 	
 
 	public String calculateMaxTimeStep() {
-		return calculateTime((int)(regTS.getNumOfRows()/sampleRate));
+		return calculateTime((int)(selectedTS.getNumOfRows()/sampleRate));
 		
 	}
 
@@ -685,17 +704,16 @@ public class Model extends Observable{
 	
 	public GraphStruct displayGraphsCall(String selectedFeature) {
 		System.out.println("From model Str = " + selectedFeature);
-		GraphStruct test = this.tsad.display(selectedFeature);
-		System.out.println(test.getStr());
+		GraphStruct struct = this.tsad.display(selectedFeature);
+		System.out.println(struct.getStr());
 		
-		parseAndFill(test);
-		System.out.println("Test points number is " + test.getPoints().getData().size());
+		parseAndFill(struct);
+		System.out.println("Test points number is " + struct.getPoints().getData().size());
 //		for (Point p : test.getPoints()) {
 //			System.out.println(p);
 //		}
 		Series<Number,Number> series = new Series<>();
-		
-		return test;
+		return struct;
 	}
 
 
@@ -721,7 +739,7 @@ public class Model extends Observable{
 			for(int i=0;i<temp.length;i++) {
 				//System.out.println(temp[i].x + "," + temp[i].y);
 				test.getPoints().getData().add(new XYChart.Data<>(temp[i].x,temp[i].y));
-				//test.getFeature1Points().getData().add(new XYChart.Data<>(i,temp[i].x));
+				////test.getFeature1Points().getData().add(new XYChart.Data<>(i,temp[i].x));
 				test.getFeature1Points().getData().add(new XYChart.Data<>(i,temp[i].x));
 				test.getFeature2Points().getData().add(new XYChart.Data<>(i,temp[i].y));
 			}
@@ -742,6 +760,17 @@ public class Model extends Observable{
 		return timeStep;
 	}
 
+	public int getMaxTime() {
+		return maxTime;
+	}
+	
+	public void setMaxTime(int numberOfRows) {
+		maxTime = numberOfRows;
+		System.out.println("testttt");
+		setChanged();
+		notifyObservers("MaxTime");
+	}
+	
 	public void setTimeStep(int timeStep) {
 		this.timeStep = timeStep;
 		AileronVal = Math.floor(regTS.getData()[map.get("aileron").getCulNumber()][timeStep]*100)/100;
@@ -766,6 +795,29 @@ public class Model extends Observable{
 
 
 	public void setSelectedAlgorithm(String selectedAlgorithm) {
+		if (tsad==null) {
+//			if(currentTab==1) {
+				es.submit(()->{
+						if(selectedAlgorithm.equals(""))
+							tsad = Factory.get("Linear-Regression");
+						else
+							tsad = Factory.get(selectedAlgorithm);
+							if(tsad == null) {
+								URLClassLoader urlClassLoader = null;
+								try {
+									urlClassLoader = URLClassLoader.newInstance(new URL[] {
+											new URL("file://"+algoFolder+selectedAlgorithm)
+											});
+								} catch (MalformedURLException e1) {}
+										try {
+											Class<?> c=urlClassLoader.loadClass(selectedAlgorithm);
+										} catch (ClassNotFoundException e) {}
+							}
+							tsad.learnNormal(regTS);
+							//tsad.detect(anomalyTS);				
+				});
+//			}
+		}
 		this.selectedAlgorithm = selectedAlgorithm;
 	}
 
@@ -910,6 +962,16 @@ public class Model extends Observable{
 	public float getMaxVal(String selectedItem) {
 		// TODO Auto-generated method stub
 		return 0;
+	}
+
+	public void setSelectedFlightToDisplay(String string) {
+		System.out.println("Selected flight is " + string);
+		if(string.equals("Train Flight"))
+				selectedTS = regTS;
+		else if (string.equals("Test Flight"))
+				selectedTS = anomalyTS;
+		this.selectedFlightToDisplay = string;
+		setMaxTime(selectedTS.getNumOfRows());
 	}
 
 }

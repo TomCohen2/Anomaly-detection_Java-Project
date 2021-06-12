@@ -40,14 +40,17 @@ public interface TimeSeriesAnomalyDetector {
 
 
 		public GraphStruct() {
+			//linear reg
 			this.points = new XYChart.Series<>();
 			this.feature1Points = new XYChart.Series<>();
 			this.feature2Points = new XYChart.Series<>();
 			l = null;
-			c = null;
-			str = null;
 			minVal = Float.MIN_VALUE;
 			maxVal = Float.MAX_VALUE;
+			//hybrid
+			c = null;			
+			
+			str = null;
 		}
 
 		public GraphStruct(XYChart.Series<Number,Number> points,XYChart.Series<Number,Number> feature1Points,XYChart.Series<Number,Number> feature2Points, Line l, Circle c, String str, float min, float max) {

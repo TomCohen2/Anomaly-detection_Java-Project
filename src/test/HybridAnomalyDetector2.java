@@ -123,4 +123,10 @@ public class HybridAnomalyDetector2 implements TimeSeriesAnomalyDetector{
 		return zsTS;
 	}
 
+	@Override
+	public GraphStruct display(String colName) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

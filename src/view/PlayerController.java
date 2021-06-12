@@ -3,6 +3,7 @@ package view;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.StringProperty;
 import javafx.fxml.FXML;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
@@ -16,6 +17,8 @@ public class PlayerController {
 	Slider timeStepSlider;
 	@FXML
 	TextField playSpeed;
+	@FXML
+	ComboBox<String> flightSelection;
 	
 	public Runnable onPlay, onPause, onStop, onFastForward, onFFastForawrd, onRewind, onFRewind;
 	
@@ -75,5 +78,15 @@ public class PlayerController {
 	
 	public void bindTimeStepSlider(IntegerProperty timeStep) {
 		timeStepSlider.valueProperty().bindBidirectional(timeStep);;
+	}
+	
+	public void bindFlightSelected(StringProperty selectedFlight) {
+		selectedFlight.bind(flightSelection.valueProperty());
+	}
+
+	public void bindTimeSliderMax(IntegerProperty iProperty) {
+		timeStepSlider.maxProperty().bind(iProperty);
+		//timeStepSlider.setMax(iProperty.get());
+		
 	}
 }

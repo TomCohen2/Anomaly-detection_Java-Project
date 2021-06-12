@@ -62,25 +62,29 @@ public class MainWindowController {
 		algorithms.controller.bindTestFileName(viewModel.getSProperty("TestFileName"));
 		
 		//binding FeatureList
-		featureList.controller.addAll(viewModel.getFeatureList());
 		
 		//binding Player panel
 		player.controller.bindCurTimeStep(viewModel.getSProperty("CurTimeStep"));
 		player.controller.bindMaxTimestep(viewModel.getSProperty("MaxTimeStep"));
 		player.controller.bindPlaySpeed(viewModel.getSProperty("PlaySpeed"));
 		player.controller.bindTimeStepSlider(viewModel.getIProperty("TimeStep"));
+		player.controller.bindTimeSliderMax(viewModel.getIProperty("MaxTime"));
+		player.controller.bindFlightSelected(viewModel.getSProperty("SelectedFlightToDisplay"));
 	}
 	public void init() {
 		settings.controller.addToSettingsList(viewModel.getSavedSettingFileNames());
 		settings.controller.onDelete = ()->viewModel.deleteSettingsFile(settings.controller.SettingsFilesListView.getSelectionModel().getSelectedItem());
 		settings.controller.onLoadSettings = ()-> viewModel.selectSettings(settings.controller.SettingsFilesListView.getSelectionModel().getSelectedItem());
 		settings.controller.onNewSettings = ()->viewModel.newSettingsFile();
-		settings.controller.onCSVFile = ()->viewModel.openCSVFile();
+		settings.controller.onCSVFile = ()->{
+			viewModel.openCSVFile();
+			featureList.controller.addAll(viewModel.getFeatureList());
+		};
 		
 		algorithms.controller.onDelete = ()->viewModel.deleteAlgo(algorithms.controller.getSelectedAlgo());
 		algorithms.controller.onNewAlgo = ()->viewModel.newAlgoFile();
 		algorithms.controller.onSelectAlgo = ()->viewModel.algoSelected(algorithms.controller.getSelectedAlgo());
-		algorithms.controller.onUpTrainCSV = ()->viewModel.openCSVFile();
+		algorithms.controller.onUpTrainCSV = settings.controller.onCSVFile;
 		algorithms.controller.onUpTestCSV = ()->viewModel.uploadTestFile();
 		algorithms.controller.addToAlgoList(viewModel.getAlgorithms());
 		
@@ -91,11 +95,14 @@ public class MainWindowController {
 		player.controller.onRewind = ()->viewModel.rewind();
 		player.controller.onFRewind = ()->viewModel.fastRewind();
 		player.controller.timeStepSlider.setMin(0);
-		player.controller.timeStepSlider.setMax(viewModel.getMaxTimeStep());
+	//	player.controller.timeStepSlider.setMax(viewModel.getMaxTimeStep());
 		player.controller.onPlay = ()->{
 			viewModel.play();
 			new Thread(()->joystick.controller.paint()).start();
 		};
+		player.controller.flightSelection.getItems().add("Train Flight");
+		player.controller.flightSelection.getItems().add("Test Flight");
+
 		
 		joystick.controller.paintJoystick = ()->{
 			double radius = 30.0;
@@ -115,12 +122,14 @@ public class MainWindowController {
 		
 		featureList.controller.featSelected = ()->{
 			if(null!=viewModel.featureSelected(featureList.controller.FeaturesList.getSelectionModel().getSelectedItem())) {
+				graphs.controller.removeFromLineChart();
 				float min,max;
 				//min = viewModel.getMinValue(FeaturesList.getSelectionModel().getSelectedItem());
 				//max = viewModel.getMaxValue(FeaturesList.getSelectionModel().getSelectedItem());
 				TimeSeriesAnomalyDetector.GraphStruct test = viewModel.featureSelected(featureList.controller.FeaturesList.getSelectionModel().getSelectedItem());
 				min = test.getMinVal();
 				max = test.getMaxVal();
+					
 				String[]args = test.getStr().split(",");
 				//xAxis = new NumberAxis(0,50,1);
 				//yAxis = new NumberAxis(-25,25,1);

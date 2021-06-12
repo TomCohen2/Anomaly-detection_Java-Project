@@ -80,7 +80,7 @@ public class welzlMain {
 
         //Hybrid
         //Learning phase
-        HybridAnomalDetector hyb = new HybridAnomalDetector();
+        HybridAnomalyDetector hyb = new HybridAnomalyDetector();
         hyb.learnNormal(ts);
         //Detecting phase
         List<AnomalyReport> hybReports = hyb.detect(ts2);
@@ -99,35 +99,35 @@ public class welzlMain {
             System.out.println("hybrid detected all the anomalies. Well Done!");
         System.out.println(k + " Anomalies were detected. (Out of ~200)");
 
-        TimeSeries ts4 = new TimeSeries("trainFile1.csv");
-        TimeSeries ts5 = new TimeSeries("testFile1.csv");
-        SimpleAnomalyDetector simp = new SimpleAnomalyDetector();
-        HybridAnomalDetector hyb2 = new HybridAnomalDetector();
-        hyb2.learnNormal(ts4);
-        simp.learnNormal(ts4);
-        List<AnomalyReport> simp2 = simp.detect(ts5);
-        List<AnomalyReport> hybid2 = hyb2.detect(ts5);
-        int w = 0;
-        for (AnomalyReport r : hybid2) {
-            System.out.println(r.description + " at: " + r.timeStep);
-            ++w;
-        }
-        System.out.println(w + " Anomalies were detected.");
-
-        int u = 0;
-        for (AnomalyReport r : simp2) {
-            System.out.println(r.description + " at: " + r.timeStep);
-            ++u;
-        }
-        System.out.println(u + " Anomalies were detected.");
-        ZscoreAnomalyDetector zi = new ZscoreAnomalyDetector();
-        zi.learnNormal(ts4);
-        List<AnomalyReport> zii = zi.detect(ts5);
-        int h = 0;
-        for (AnomalyReport r : zii) {
-            System.out.println(r.description + " at: " + r.timeStep);
-            ++h;
-        }
-        System.out.println(h + " Anomalies were detected.");
+//        TimeSeries ts4 = new TimeSeries("trainFile1.csv");
+//        TimeSeries ts5 = new TimeSeries("testFile1.csv");
+//        SimpleAnomalyDetector simp = new SimpleAnomalyDetector();
+//        HybridAnomalyDetector hyb2 = new HybridAnomalyDetector();
+//        hyb2.learnNormal(ts4);
+//        simp.learnNormal(ts4);
+//        List<AnomalyReport> simp2 = simp.detect(ts5);
+//        List<AnomalyReport> hybid2 = hyb2.detect(ts5);
+//        int w = 0;
+//        for (AnomalyReport r : hybid2) {
+//            System.out.println(r.description + " at: " + r.timeStep);
+//            ++w;
+//        }
+//        System.out.println(w + " Anomalies were detected.");
+//
+//        int u = 0;
+//        for (AnomalyReport r : simp2) {
+//            System.out.println(r.description + " at: " + r.timeStep);
+//            ++u;
+//        }
+//        System.out.println(u + " Anomalies were detected.");
+//        ZscoreAnomalyDetector zi = new ZscoreAnomalyDetector();
+//        zi.learnNormal(ts4);
+//        List<AnomalyReport> zii = zi.detect(ts5);
+//        int h = 0;
+//        for (AnomalyReport r : zii) {
+//            System.out.println(r.description + " at: " + r.timeStep);
+//            ++h;
+//        }
+//        System.out.println(h + " Anomalies were detected.");
     }
 }

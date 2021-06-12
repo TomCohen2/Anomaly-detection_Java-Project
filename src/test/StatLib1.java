@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-public class StatLib {
+public class StatLib1 {
 
 	// simple average
 	public static float avg(float[] x){

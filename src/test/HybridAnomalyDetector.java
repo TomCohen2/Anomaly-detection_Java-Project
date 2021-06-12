@@ -39,8 +39,17 @@ public class HybridAnomalyDetector implements TimeSeriesAnomalyDetector{
                 else simp_index = Arrays.copyOf(simp_index,simp_index.length + 2);
                 simp_index[simp_index.length - 2] = i;
                 simp_index[simp_index.length - 1] = maxIndex;
-                simp.addFeature(data[i],names[i]);
-                simp.addFeature(data[maxIndex],names[maxIndex]);
+                
+             //   simp.addFeature(data[i],names[i]);
+            //    simp.addFeature(data[maxIndex],names[maxIndex]);
+                
+                  Point[] points = StatLib.arrToPoints(data[i], data[maxIndex]);
+                  Line l = StatLib.linear_reg(data[i],data[maxIndex]);
+                  float[] devArr = reg.devArr(points, l);
+                  float maxDev = reg.findMax(devArr);
+
+                  reg.addCor(names[i],names[maxIndex],max,l,maxDev);
+                
             }else if(max<0.5){
                 if (z_index == null)
                     z_index = new int[1];
@@ -57,8 +66,8 @@ public class HybridAnomalyDetector implements TimeSeriesAnomalyDetector{
                 wezly.addFeature(data[maxIndex],names[maxIndex]);
             }
         }
-        if(simp.numOfFeatures>0)
-            reg.learnNormal(simp);
+    //  if(simp.numOfFeatures>0)
+    //      reg.learnNormal(simp);
         if(z.numOfFeatures>0)
             zad.learnNormal(z);
         if(wezly.numOfFeatures>0)

@@ -23,6 +23,13 @@ public class GraphsController {
 			LineChart.getData().add(series);
 	}
 	
+
+	public void removeFromLineChart() {
+		LineChart.getData().clear();
+		Feature1LC.getData().clear();
+		Feature2LC.getData().clear();
+	}
+	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void add2Feature1(Series series) {
 		Feature1LC.getData().add(series);

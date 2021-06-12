@@ -13,8 +13,8 @@
       <Button layoutX="68.0" layoutY="169.0" mnemonicParsing="false" onAction="#algoSelect" text="Select Algorithm" />
       <Button layoutX="68.0" layoutY="200.0" mnemonicParsing="false" onAction="#newAlgo" prefWidth="104.0" text="New Algorithm" />
       <Button layoutX="7.0" layoutY="41.0" mnemonicParsing="false" onAction="#delete" prefHeight="75.0" prefWidth="54.0" text="Delete" />
-      <Button layoutX="14.0" layoutY="359.0" mnemonicParsing="false" onAction="#uploadTestCSV" prefWidth="107.0" text="Upload Test File" />
-      <Button layoutX="14.0" layoutY="329.0" mnemonicParsing="false" onAction="#uploadTrainCSV" prefHeight="25.0" prefWidth="107.0" text="Upload Train File" />
+      <Button layoutX="14.0" layoutY="346.0" mnemonicParsing="false" onAction="#uploadTestCSV" prefWidth="107.0" text="Upload Test File" />
+      <Button layoutX="14.0" layoutY="315.0" mnemonicParsing="false" onAction="#uploadTrainCSV" prefHeight="25.0" prefWidth="107.0" text="Upload Train File" />
       <Label layoutX="14.0" layoutY="235.0" text="Algorithm:" />
       <Label layoutX="5.0" layoutY="262.0" text="Train file name:" />
       <Label layoutX="7.0" layoutY="290.0" text="Test file name:" />

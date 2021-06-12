@@ -104,7 +104,7 @@ public class ViewModel implements Observer{
 		//this.VM_CurTimeStep.addListener((obj,oldVal,newVal)->model.setTimeStep((int)this.VM_CurTimeStep.get()));
 		getBProperty("Simulator").addListener((obj,oldVal,newVal)->model.setIsSimulated(getBProperty("Simulator").get()));
 		getIProperty("Tabs").addListener((obj,oldVal,newVal)->model.setCurrentTab(getIProperty("Tabs").get()));
-		
+		getSProperty("SelectedFlightToDisplay").addListener((obj,oldVal,newVal)->model.setSelectedFlightToDisplay(getSProperty("SelectedFlightToDisplay").get()));
 		StringProperty temp = getSProperty("PlaySpeed");
 		temp.addListener((obd,oldVal,newVal)->{
 		if(!temp.get().equals("") && !temp.get().equals("0") && !temp.get().equals("0.0") && !temp.get().equals("0."))// && temp.get().matches("\\d+"))
@@ -134,8 +134,6 @@ public class ViewModel implements Observer{
 				Platform.runLater(()->{
 					getSProperty("TrainFileName").set(this.model.getTrainFileName());
 					getList("Features").set(this.model.getFeatureList());
-					getSProperty("CurTimeStep").set(model.calculateTime(model.getTimeStep()));
-					getSProperty("MaxTimeStep").set(model.calculateMaxTimeStep());
 					System.out.println(getList("Features").asString());
 					System.out.println("Done");
 				});
@@ -175,16 +173,24 @@ public class ViewModel implements Observer{
 					});
 				}
 						
-			}
 			else if(arg.equals("Settings")) {
 				Platform.runLater(()->{
 					getSProperty("LoadedSettings").set(this.model.getLastSettingsUsed());
 				});
 			}
-			
+			else if(arg.equals("MaxTime")) {
+				System.out.println("We are here yo!");
+				Platform.runLater(()->{
+					System.out.println("We are here yo!");
+					getSProperty("CurTimeStep").set(model.calculateTime(model.getTimeStep()));
+					getSProperty("MaxTimeStep").set(model.calculateMaxTimeStep());
+					getIProperty("MaxTime").set(this.model.getMaxTime());
+				});
+			}
 			//	VM_SettingsFilesList.set(this.model.getFileSettingsObsList());
 			//	VM_FeaturesList.set(this.model.getFeatureList());
 		}
+	}
 	
 	public BooleanProperty getBProperty(String property) {
 		if(!BPropertyMap.containsKey(property))
@@ -348,7 +354,6 @@ public class ViewModel implements Observer{
 //		this.VM_CurTimeStep.bindBidirectional(valueProperty);
 //		
 //	}
-//
 //	public void bindSimulatorCB(BooleanProperty b) {
 //		this.VM_isSimulated.bind(b);
 //		
@@ -412,6 +417,7 @@ public class ViewModel implements Observer{
 	public TimeSeriesAnomalyDetector.GraphStruct featureSelected(String selectedFeature) {
 		selectedFeatureBool.set(true);
 		getSProperty("SelectedFeature").set(selectedFeature);;
+		model.setSelectedFeature(selectedFeature);
 		return model.displayGraphsCall(selectedFeature);
 		
 	}
