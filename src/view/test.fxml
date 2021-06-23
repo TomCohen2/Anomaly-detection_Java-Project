@@ -20,8 +20,7 @@
 <?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Font?>
 
-
-<AnchorPane prefHeight="530.0" prefWidth="620.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/16">
+<AnchorPane prefHeight="530.0" prefWidth="620.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <TabPane layoutY="28.0" prefHeight="421.0" prefWidth="620.0" tabClosingPolicy="UNAVAILABLE">
         <tabs>
@@ -212,6 +211,7 @@
                                     <NumberAxis fx:id="yAxis" animated="false" forceZeroInRange="false" minorTickVisible="false" side="LEFT" tickLabelsVisible="false" tickMarkVisible="false" />
                                  </yAxis>
                               </LineChart>
+                              <Canvas fx:id="welzlCanvas" height="182.0" layoutX="24.0" layoutY="141.0" width="200.0" />
                            </children>
                         </AnchorPane>
                         <AnchorPane layoutY="1.0">

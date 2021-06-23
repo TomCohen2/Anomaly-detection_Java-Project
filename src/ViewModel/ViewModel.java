@@ -36,6 +36,7 @@ public class ViewModel implements Observer{
 	HashMap<String,BooleanProperty> BPropertyMap;
 	HashMap<String,ObjectProperty<ObservableList<String>>> LPropertyMap;
 	AtomicBoolean selectedFeatureBool;
+	String selectedFeature;
 	//
 //	DoubleProperty VM_AileronVal;
 //	DoubleProperty VM_ElevatorVal;
@@ -102,7 +103,7 @@ public class ViewModel implements Observer{
 		getIProperty("TimeStep").addListener((obj,oldVal,newVal)->model.setTimeStep(getIProperty("TimeStep").get()));
 		//this.VM_timeStep.addListener((obj,oldVal,newVal)->VM_CurTimeStep.setValue(VM_timeStep.get()));
 		//this.VM_CurTimeStep.addListener((obj,oldVal,newVal)->model.setTimeStep((int)this.VM_CurTimeStep.get()));
-		getBProperty("Simulator").addListener((obj,oldVal,newVal)->model.setIsSimulated(getBProperty("Simulator").get()));
+		getBProperty("FlightGear").addListener((obj,oldVal,newVal)->model.setIsSimulated(getBProperty("FlightGear").get()));
 		getIProperty("Tabs").addListener((obj,oldVal,newVal)->model.setCurrentTab(getIProperty("Tabs").get()));
 		getSProperty("SelectedFlightToDisplay").addListener((obj,oldVal,newVal)->model.setSelectedFlightToDisplay(getSProperty("SelectedFlightToDisplay").get()));
 		StringProperty temp = getSProperty("PlaySpeed");
@@ -119,7 +120,7 @@ public class ViewModel implements Observer{
 	}
 
 	public void setSelectedFeatureBool(boolean selectedFeatureBool) {
-		this.selectedFeatureBool.set(selectedFeatureBool);;
+		this.selectedFeatureBool.set(selectedFeatureBool);
 	}
 
 	@Override
@@ -156,7 +157,7 @@ public class ViewModel implements Observer{
 					getDProperty("Throttle").set(this.model.getThrottleVal());
 					getDProperty("FlightHeight").set(this.model.getFlightHeightVal());
 					getDProperty("FlightSpeed").set(this.model.getFlightSpeedVal());
-					getDProperty("R").set(this.model.getRollVal());
+					getDProperty("Roll").set(this.model.getRollVal());
 					getDProperty("Pitch").set(this.model.getPitchVal());
 					getDProperty("Yaw").set(this.model.getYawVal());
 					getSProperty("MaxTimeStep").set((this.model.calculateMaxTimeStep()));
@@ -164,6 +165,7 @@ public class ViewModel implements Observer{
 					getSProperty("CurTimeStep").set(model.calculateTime(model.getTimeStep()/model.getSampleRate()));
 					if(selectedFeatureBool.get()) {
 						model.displayGraphsCall(getSProperty("SelectedFeature").get());
+						
 					}
 				});
 			}
@@ -179,9 +181,7 @@ public class ViewModel implements Observer{
 				});
 			}
 			else if(arg.equals("MaxTime")) {
-				System.out.println("We are here yo!");
 				Platform.runLater(()->{
-					System.out.println("We are here yo!");
 					getSProperty("CurTimeStep").set(model.calculateTime(model.getTimeStep()));
 					getSProperty("MaxTimeStep").set(model.calculateMaxTimeStep());
 					getIProperty("MaxTime").set(this.model.getMaxTime());
@@ -372,7 +372,7 @@ public class ViewModel implements Observer{
 	public void openCSVFile() {
 		model.newCSVFile();
 		getList("Features").set(this.model.getFeatureList());
-		this.model.getFeatureList().forEach((a)->System.out.println(a));
+		//this.model.getFeatureList().forEach((a)->System.out.println(a));
 		//getList("Feature")
 	}
 
@@ -414,11 +414,16 @@ public class ViewModel implements Observer{
 		return model.getFeatureList();
 	}
 
-	public TimeSeriesAnomalyDetector.GraphStruct featureSelected(String selectedFeature) {
+	public void featureSelected(String selectedFeature) {
 		selectedFeatureBool.set(true);
 		getSProperty("SelectedFeature").set(selectedFeature);;
 		model.setSelectedFeature(selectedFeature);
-		return model.displayGraphsCall(selectedFeature);
+		//return model.displayGraphsCall(selectedFeature);
+		
+	}
+	
+	public TimeSeriesAnomalyDetector.GraphStruct getGraphStruct(){
+		return model.displayGraphsCall(model.getSelectedFeature());
 		
 	}
 

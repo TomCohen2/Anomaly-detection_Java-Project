@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.chart.BubbleChart?>
 <?import javafx.scene.chart.LineChart?>
 <?import javafx.scene.chart.NumberAxis?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -24,6 +25,14 @@
             <NumberAxis animated="false" forceZeroInRange="false" minorTickVisible="false" side="LEFT" tickLabelsVisible="false" tickMarkVisible="false" />
          </yAxis>
       </LineChart>
+      <BubbleChart fx:id="bubbleChart" alternativeRowFillVisible="false" horizontalGridLinesVisible="false" layoutX="6.2" layoutY="140.5" prefHeight="200.0" prefWidth="225.0" verticalGridLinesVisible="false" visible="false">
+        <xAxis>
+          <NumberAxis lowerBound="-100.0" minorTickCount="0" minorTickVisible="false" side="BOTTOM" tickLabelsVisible="false" tickMarkVisible="false" />
+        </xAxis>
+        <yAxis>
+          <NumberAxis lowerBound="-100.0" minorTickVisible="false" side="LEFT" tickLabelsVisible="false" tickMarkVisible="false" />
+        </yAxis>
+      </BubbleChart>
       <LineChart fx:id="LineChart" alternativeRowFillVisible="false" animated="false" horizontalGridLinesVisible="false" horizontalZeroLineVisible="false" layoutX="6.200000002980232" layoutY="140.5" prefHeight="200.0" prefWidth="225.0" verticalGridLinesVisible="false" verticalZeroLineVisible="false">
          <xAxis>
             <NumberAxis animated="false" forceZeroInRange="false" minorTickVisible="false" side="BOTTOM" tickLabelsVisible="false" tickMarkVisible="false" fx:id="xAxis" />

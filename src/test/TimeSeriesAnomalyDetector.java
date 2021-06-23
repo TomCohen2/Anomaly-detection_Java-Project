@@ -20,6 +20,9 @@ public interface TimeSeriesAnomalyDetector {
 		String str;
 		float minVal;
 		float maxVal;
+		float minYVal;
+		float maxYVal;
+		float[] zScores;
 		
 		
 		
@@ -47,13 +50,15 @@ public interface TimeSeriesAnomalyDetector {
 			l = null;
 			minVal = Float.MIN_VALUE;
 			maxVal = Float.MAX_VALUE;
+			minYVal = Float.MIN_VALUE;
+			maxYVal = Float.MAX_VALUE;
 			//hybrid
 			c = null;			
-			
+			zScores=null;
 			str = null;
 		}
 
-		public GraphStruct(XYChart.Series<Number,Number> points,XYChart.Series<Number,Number> feature1Points,XYChart.Series<Number,Number> feature2Points, Line l, Circle c, String str, float min, float max) {
+		public GraphStruct(XYChart.Series<Number,Number> points,XYChart.Series<Number,Number> feature1Points,XYChart.Series<Number,Number> feature2Points, Line l, Circle c, String str, float min, float max, float minY, float maxY, float[] zScores) {
 			super();
 			this.points.getData().addAll(points.getData());
 			this.feature1Points.getData().addAll(feature1Points.getData());
@@ -63,9 +68,39 @@ public interface TimeSeriesAnomalyDetector {
 			this.str=str;
 			this.minVal=min;
 			this.maxVal=max;
+			this.minYVal=minY;
+			this.maxYVal=maxY;
+			this.zScores = new float[zScores.length];
+			setzScores(zScores);
 			
 		}
 		
+		public float[] getzScores() {
+			return zScores;
+		}
+
+		public void setzScores(float[] zScores) {
+			this.zScores = new float[zScores.length];
+			for(int i=0;i<zScores.length;i++)
+				this.zScores[i] = zScores[i];
+		}
+
+		public float getMinYVal() {
+			return minYVal;
+		}
+
+		public void setMinYVal(float minYVal) {
+			this.minYVal = minYVal;
+		}
+
+		public float getMaxYVal() {
+			return maxYVal;
+		}
+
+		public void setMaxYVal(float maxYVal) {
+			this.maxYVal = maxYVal;
+		}
+
 		public float getMinVal() {
 			return minVal;
 		}

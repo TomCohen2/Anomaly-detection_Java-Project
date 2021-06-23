@@ -1,17 +1,24 @@
-.default-color1.chart-series-line { -fx-stroke: transparent; }
-.default-color0.chart-series-line { -fx-stroke: red; }
+#LR .default-color0.chart-series-line { -fx-stroke: blue; }
+#LR .default-color0.chart-line-symbol { -fx-background-color: transparent, transparent; }
+#LR .default-color0.chart-legend-item-symbol{-fx-background-color: blue; }
 
-.default-color1.chart-line-symbol { 
+#LR .default-color1.chart-series-line { -fx-stroke: transparent; }
+#LR .default-color1.chart-legend-item-symbol{-fx-background-color: MediumBlue; }
+#LR .default-color1.chart-line-symbol { 
     -fx-background-color: transparent, MediumBlue;
-   	-fx-background-size: 0.2;
+   	-fx-background-size: 0.2px;
 }
-.default-color0.chart-line-symbol { 
-    -fx-background-color: transparent, transparent; 
+#LR .default-color2.chart-series-line { -fx-stroke: red; }
+#LR .default-color2.chart-line-symbol {-fx-background-color: transparent, transparent;}
+#LR .default-color2.chart-legend-item-symbol{-fx-background-color: red;}
+
+
+
+
+#welzl .chart-bubble.series0.data0.default-color0 {
+    -fx-bubble-fill: transparent;
+    -fx-bubble-color: black;
+    -fx-bubble-outline: 1px;
 }
 
-.default-color1.chart-legend-item-symbol{
-    -fx-background-color: MediumBlue;
- }
-.default-color0.chart-legend-item-symbol{
-    -fx-background-color: red;
- }
+
