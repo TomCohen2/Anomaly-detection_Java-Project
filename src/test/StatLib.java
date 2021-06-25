@@ -20,14 +20,20 @@ public class StatLib {
 	{
 		float[] temp = arr.clone();
 		Arrays.sort(temp);
-		return temp[arr.length-1];
+		if(arr.length != 0) {
+			return temp[arr.length-1];
+		}
+		return 0;
 	}
 	
 	//Returns max value in array
 	public static float findMin(float[] arr) {
 		float[]temp = arr.clone();
 		Arrays.sort(temp);
-		return temp[0];
+		if(arr.length!=0) {
+			return temp[0];
+		}
+		return 0;
 	}
 	
 	public static float[] TrimArr(float[] fs, int timeStep) {

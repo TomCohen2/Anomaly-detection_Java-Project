@@ -2,7 +2,9 @@ package test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class HybridAnomalyDetector implements TimeSeriesAnomalyDetector{
     ZscoreAnomalyDetector zad;
@@ -11,6 +13,10 @@ public class HybridAnomalyDetector implements TimeSeriesAnomalyDetector{
     int[] z_index;
     int[] simp_index;
     int[] welzl_index;
+    Map<String,Circle> enclosingCircleMap;
+
+    
+    
     @Override
     public void learnNormal(TimeSeries ts) {
         reg = new SimpleAnomalyDetector();
@@ -21,6 +27,7 @@ public class HybridAnomalyDetector implements TimeSeriesAnomalyDetector{
         TimeSeries simp = new TimeSeries();
         TimeSeries z = new TimeSeries();
         TimeSeries wezly = new TimeSeries();
+        enclosingCircleMap = new HashMap<String, Circle>();
         for (int i = 0;i < num_of_features;i++) //checking if any two features have correlation.
         {
             float max = -1;
@@ -134,6 +141,11 @@ public class HybridAnomalyDetector implements TimeSeriesAnomalyDetector{
 
 	@Override
 	public GraphStruct display(String colName) {
-		return null;
+		GraphStruct ret = new GraphStruct();
+		ret.setC(enclosingCircleMap.get(colName));
+		ret.setStr("HYB,"+colName);
+		System.out.println("In HYB Display, circle = " + ret.getC() + " enclo = " + enclosingCircleMap.get(colName) + " STR = " + ret.getStr());
+		return ret;
 	}
+
 }

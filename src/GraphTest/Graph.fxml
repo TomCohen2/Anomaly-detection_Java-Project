@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.chart.BubbleChart?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GraphTest.GraphController">
+   <children>
+      <BubbleChart fx:id="bubbleChart">
+        <xAxis>
+          <NumberAxis lowerBound="-1000.0" side="BOTTOM" upperBound="1000.0" fx:id="xAxis" />
+        </xAxis>
+        <yAxis>
+          <NumberAxis fx:id="yAxis" lowerBound="-1000.0" side="LEFT" upperBound="1000.0" />
+        </yAxis>
+      </BubbleChart>
+   </children>
+</AnchorPane>

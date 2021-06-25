@@ -81,12 +81,10 @@ public class PlayerController {
 	}
 	
 	public void bindFlightSelected(StringProperty selectedFlight) {
-		selectedFlight.bind(flightSelection.valueProperty());
+		selectedFlight.bindBidirectional(flightSelection.valueProperty());
 	}
 
 	public void bindTimeSliderMax(IntegerProperty iProperty) {
-		timeStepSlider.maxProperty().bind(iProperty);
-		//timeStepSlider.setMax(iProperty.get());
-		
+		timeStepSlider.maxProperty().bind(iProperty);		
 	}
 }

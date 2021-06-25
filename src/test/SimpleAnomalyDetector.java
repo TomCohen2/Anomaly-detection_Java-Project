@@ -123,7 +123,7 @@ public class SimpleAnomalyDetector implements TimeSeriesAnomalyDetector {
 	public GraphStruct display(String colName) {
 		GraphStruct ret = new GraphStruct();
 		for (CorrelatedFeatures cf : corList) {
-			if (cf.feature1.equals(colName)) {
+			if (cf.feature1.equals(colName)||cf.feature2.equals(colName)) {
 				ret.setL(cf.lin_reg);
 				ret.setStr("LR,"+cf.feature1 + "," + cf.feature2);
 			}

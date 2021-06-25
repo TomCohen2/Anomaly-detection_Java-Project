@@ -13,7 +13,7 @@ public class FeatureListController {
 	
 	public void featureSelected() {
 		if (featSelected!=null)
-			featSelected.run();
+				featSelected.run();
 	}
 	
 	public void addAll(List<String> featureList) {

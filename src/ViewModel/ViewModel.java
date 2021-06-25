@@ -36,6 +36,7 @@ public class ViewModel implements Observer{
 	HashMap<String,BooleanProperty> BPropertyMap;
 	HashMap<String,ObjectProperty<ObservableList<String>>> LPropertyMap;
 	AtomicBoolean selectedFeatureBool;
+	String selectedFeature;
 	//
 //	DoubleProperty VM_AileronVal;
 //	DoubleProperty VM_ElevatorVal;
@@ -163,7 +164,9 @@ public class ViewModel implements Observer{
 					//getSProperty("CurTimeStepString").set((this.model.calculateTime(this.model.getTimeStep()/this.model.getSampleRate())));
 					getSProperty("CurTimeStep").set(model.calculateTime(model.getTimeStep()/model.getSampleRate()));
 					if(selectedFeatureBool.get()) {
-						model.displayGraphsCall(getSProperty("SelectedFeature").get());
+						//model.displayGraphsCall(getSProperty("SelectedFeature").get());
+						System.out.println("yaniv");
+						featureSelected(selectedFeature);
 					}
 				});
 			}
@@ -186,6 +189,10 @@ public class ViewModel implements Observer{
 					getSProperty("MaxTimeStep").set(model.calculateMaxTimeStep());
 					getIProperty("MaxTime").set(this.model.getMaxTime());
 				});
+			}
+			else if(arg.equals("Alert")) {
+				getSProperty("Alert").set(model.getAlert());
+			    getSProperty("Alert").set("");
 			}
 			//	VM_SettingsFilesList.set(this.model.getFileSettingsObsList());
 			//	VM_FeaturesList.set(this.model.getFeatureList());
@@ -220,70 +227,8 @@ public class ViewModel implements Observer{
 		if(!LPropertyMap.containsKey(property))
 			LPropertyMap.put(property, new SimpleObjectProperty<ObservableList<String>>());
 		return LPropertyMap.get(property);
-		
 	}
-//	
-//	
-//	public void bindBooleanProperty() {
-//		
-//	}
-//	
-//	public void bindDoubleProperty() {
-//		
-//	}
-//	
-//	public void bindAileron(StringProperty textProperty) {
-//		textProperty.bind(VM_AileronVal.asString());
-//		
-//	}
-//
-//	public void bindElevator(StringProperty textProperty) {
-//		textProperty.bind(this.VM_ElevatorVal.asString());
-//		
-//	}
-//
-//	public void bindRudder(StringProperty textProperty) {
-//		textProperty.bind(this.VM_RudderVal.asString());
-//		
-//	}
-//	
-//	public void bindRudder(DoubleProperty valueProperty) {
-//		valueProperty.bind(this.VM_RudderVal);		
-//	}
-//
-//	public void bindThrottle(StringProperty textProperty) {
-//		textProperty.bind(this.VM_ThrottleVal.asString());
-//		
-//	}
-//
-//	public void bindThrottle(DoubleProperty valueProperty) {
-//		valueProperty.bind(this.VM_ThrottleVal);
-//	}
-//
-//	public void bindFlightHeight(StringProperty textProperty) {
-//		textProperty.bind(this.VM_FlightHeightVal.asString());
-//		
-//	}
-//
-//	public void bindFlightSpeed(StringProperty textProperty) {
-//		textProperty.bind(this.VM_FlightSpeedVal.asString());
-//		
-//	}
-//
-//	public void bindRoll(StringProperty textProperty) {
-//		textProperty.bind(this.VM_RollVal.asString());
-//		
-//	}
-//
-//	public void bindPitch(StringProperty textProperty) {
-//		textProperty.bind(this.VM_PitchVal.asString());
-//		
-//	}
-//
-//	public void bindYaw(StringProperty textProperty) {
-//		textProperty.bind(this.VM_YawVal.asString());
-//		
-//	}
+		
 
 	public void initialize() {
 		getList("SettingsFileList").set(this.model.getFileSettingsObsList());;
@@ -293,9 +238,6 @@ public class ViewModel implements Observer{
 	}
 	
 	public void play() {
-//		System.out.println("Play from ViewModel!");
-//		if(!model.getPlayFlag()) {
-//		model.setPlayFlag(true);
 		model.play();
 		}
 	
@@ -416,6 +358,7 @@ public class ViewModel implements Observer{
 
 	public TimeSeriesAnomalyDetector.GraphStruct featureSelected(String selectedFeature) {
 		selectedFeatureBool.set(true);
+		this.selectedFeature = selectedFeature;
 		getSProperty("SelectedFeature").set(selectedFeature);;
 		model.setSelectedFeature(selectedFeature);
 		return model.displayGraphsCall(selectedFeature);
