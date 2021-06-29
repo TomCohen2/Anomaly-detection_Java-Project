@@ -28,6 +28,7 @@
             <content>
               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
+                        <Rectangle arcHeight="5.0" arcWidth="5.0" fill="DODGERBLUE" height="380.0" layoutX="4.0" layoutY="4.0" stroke="BLACK" strokeType="INSIDE" width="189.0" />
                         <AnchorPane layoutX="450.0" prefHeight="164.0" prefWidth="169.0">
                            <children>
                               <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#ffffff00" height="160.0" stroke="#969696" strokeType="INSIDE" width="165.0" AnchorPane.bottomAnchor="2.0" AnchorPane.leftAnchor="2.0" AnchorPane.rightAnchor="2.0" AnchorPane.topAnchor="2.0" />
@@ -147,18 +148,23 @@
                         </AnchorPane>
                         <AnchorPane layoutX="194.0" layoutY="38.0" prefHeight="316.0" prefWidth="254.0">
                            <children>
-                              <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#1f93ff00" height="312.0" stroke="#969696" strokeType="INSIDE" width="250.0" AnchorPane.bottomAnchor="2.0" AnchorPane.leftAnchor="2.0" AnchorPane.rightAnchor="2.0" AnchorPane.topAnchor="2.0" />
+                              <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#1f93ff00" height="377.0" layoutY="-32.0" stroke="#969696" strokeType="INSIDE" width="250.0" AnchorPane.bottomAnchor="-11.0" AnchorPane.leftAnchor="2.0" AnchorPane.rightAnchor="2.0" AnchorPane.topAnchor="-32.0" />
                               <Button fx:id="NewSettingsFile" layoutX="44.0" layoutY="182.0" mnemonicParsing="false" onAction="#newSettingsFile" prefHeight="25.0" prefWidth="110.0" text="New Settings File" />
                               <Button fx:id="LoadSettingsFile" layoutX="44.0" layoutY="212.0" mnemonicParsing="false" onAction="#selectSettings" prefHeight="25.0" prefWidth="110.0" text="Load Settings File" />
-                              <Label layoutX="67.0" layoutY="14.0" text="Settings files" />
+                              <Label layoutX="58.0" layoutY="14.0" text="Settings files" />
                               <ListView fx:id="SettingsFilesListView" layoutX="14.0" layoutY="39.0" prefHeight="138.0" prefWidth="168.0" />
                               <Button layoutX="187.0" layoutY="70.0" mnemonicParsing="false" onAction="#deleteSettingsFile" prefHeight="75.0" prefWidth="54.0" text="Delete" />
                               <Label layoutX="35.0" layoutY="270.0" prefHeight="18.0" prefWidth="91.0" text="Settings loaded:" />
                               <Label fx:id="LoadedSettings" layoutX="126.0" layoutY="270.0" text="Loaded Settings" />
-                              <CheckBox fx:id="Simulator" layoutX="11.0" layoutY="289.0" mnemonicParsing="false" text="FlightGear Simulator" />
+                              <CheckBox fx:id="Simulator" layoutX="61.0" layoutY="315.0" mnemonicParsing="false" text="FlightGear Simulator" />
                               <Button layoutX="44.0" layoutY="242.0" mnemonicParsing="false" onAction="#openCSVFile" prefHeight="25.0" prefWidth="110.0" text="Choose CSV File" />
                            </children>
                         </AnchorPane>
+                        <Label layoutX="-81.0" layoutY="168.0" prefHeight="54.0" prefWidth="365.0" rotate="-70.2" text="רוצה לפרסם את העסק?" textFill="#5324c1">
+                           <font>
+                              <Font name="Tahoma Bold" size="30.0" />
+                           </font>
+                        </Label>
                      </children>
                   </AnchorPane>
             </content>
@@ -212,6 +218,7 @@
                                  </yAxis>
                               </LineChart>
                               <Canvas fx:id="welzlCanvas" height="182.0" layoutX="24.0" layoutY="141.0" width="200.0" />
+                              <CheckBox fx:id="Simulator1" layoutX="52.0" layoutY="352.0" mnemonicParsing="false" text="FlightGear Simulator" />
                            </children>
                         </AnchorPane>
                         <AnchorPane layoutY="1.0">

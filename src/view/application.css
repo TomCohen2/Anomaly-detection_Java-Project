@@ -1,16 +1,15 @@
-#LR .default-color0.chart-series-line { -fx-stroke: blue; }
-#LR .default-color0.chart-line-symbol { -fx-background-color: transparent, transparent; }
-#LR .default-color0.chart-legend-item-symbol{-fx-background-color: blue; }
+.default-color0.chart-series-line { -fx-stroke: MediumBlue; }
+.default-color0.chart-legend-item-symbol{-fx-background-color: MediumBlue; }
+.default-color0.chart-line-symbol { -fx-background-color: transparent, transparent; }
 
-#LR .default-color1.chart-series-line { -fx-stroke: transparent; }
-#LR .default-color1.chart-legend-item-symbol{-fx-background-color: MediumBlue; }
-#LR .default-color1.chart-line-symbol { 
-    -fx-background-color: transparent, MediumBlue;
-   	-fx-background-size: 0.2px;
+.default-color1.chart-series-line { -fx-stroke: transparent; }
+.default-color1.chart-legend-item-symbol{-fx-background-color: green; }
+.default-color1.chart-line-symbol { 
+    -fx-background-color: transparent, green;
 }
-#LR .default-color2.chart-series-line { -fx-stroke: red; }
-#LR .default-color2.chart-line-symbol {-fx-background-color: transparent, transparent;}
-#LR .default-color2.chart-legend-item-symbol{-fx-background-color: red;}
+.default-color2.chart-series-line { -fx-stroke: transparent; }
+.default-color2.chart-legend-item-symbol{-fx-background-color: red;}
+.default-color2.chart-line-symbol {-fx-background-color: transparent, red;}
 
 
 
@@ -19,6 +18,7 @@
     -fx-bubble-fill: transparent;
     -fx-bubble-color: black;
     -fx-bubble-outline: 1px;
+       	-fx-background-size: 0.2px;
 }
 
 

@@ -48,7 +48,7 @@ public class SettingsController {
 	}
 		
 	void bindFlightGearBoolean(BooleanProperty FG) {
-		FG.bind(FlightGear.selectedProperty());
+		FG.bindBidirectional(FlightGear.selectedProperty());
 	}
 
 }

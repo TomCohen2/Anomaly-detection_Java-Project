@@ -3,6 +3,7 @@
 <?import javafx.scene.chart.BubbleChart?>
 <?import javafx.scene.chart.LineChart?>
 <?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.shape.Rectangle?>
 
@@ -41,5 +42,6 @@
             <NumberAxis fx:id="yAxis" animated="false" forceZeroInRange="false" minorTickVisible="false" side="LEFT" tickLabelsVisible="false" tickMarkVisible="false" />
          </yAxis>
       </LineChart>
+      <CheckBox fx:id="Simulator" layoutX="55.0" layoutY="348.0" mnemonicParsing="false" text="FlightGear Simulator" />
    </children>
 </AnchorPane>

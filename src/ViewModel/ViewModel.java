@@ -24,6 +24,7 @@ import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.scene.chart.XYChart;
+import javafx.scene.chart.XYChart.Series;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import test.Model;
@@ -37,6 +38,9 @@ public class ViewModel implements Observer{
 	HashMap<String,ObjectProperty<ObservableList<String>>> LPropertyMap;
 	AtomicBoolean selectedFeatureBool;
 	String selectedFeature;
+	XYChart.Series<Number, Number> goodPoints;
+	XYChart.Series<Number, Number> badPoints;
+	XYChart.Series<Number, Number> line;
 	//
 //	DoubleProperty VM_AileronVal;
 //	DoubleProperty VM_ElevatorVal;
@@ -71,36 +75,18 @@ public class ViewModel implements Observer{
 		BPropertyMap = new HashMap<>();
 		LPropertyMap = new HashMap<>();
 		selectedFeatureBool = new AtomicBoolean();
-//		VM_timeStep = new SimpleIntegerProperty();
-//		VM_CurTimeStep = new SimpleIntegerProperty();
-//		VM_StringTimeStep = new SimpleStringProperty();
-//		VM_MaxTimeStep = new SimpleStringProperty();
-//		VM_ElevatorVal = new SimpleDoubleProperty();
-//		VM_AileronVal = new SimpleDoubleProperty();
-//		VM_RudderVal = new SimpleDoubleProperty();
-//		VM_ThrottleVal = new SimpleDoubleProperty();
-//		VM_FlightHeightVal = new SimpleDoubleProperty();
-//		VM_FlightSpeedVal = new SimpleDoubleProperty();
-//		VM_RollVal = new SimpleDoubleProperty();
-//		VM_PitchVal = new SimpleDoubleProperty();
-//		VM_YawVal = new SimpleDoubleProperty();
-//		VM_isSimulated = new SimpleBooleanProperty();
-//		VM_SettingsFilesList = new SimpleObjectProperty<ObservableList<String>>();
-//		VM_FeaturesList = new SimpleObjectProperty<ObservableList<String>>();
-//		VM_AlgoFiles = new SimpleObjectProperty<ObservableList<String>>();
-//		//Graphs
-//		VM_DISP_Feature1 = new SimpleIntegerProperty();
-//		VM_DISP_Feature2 = new SimpleIntegerProperty();
-//		VM_LoadedSettings = new SimpleStringProperty();
-//		VM_AlgorithmSelected = new SimpleStringProperty();
-//		VM_TrainFileName = new SimpleStringProperty();
-//		VM_TestFileName = new SimpleStringProperty();
-//		VM_TabPane = new SimpleIntegerProperty();
-//		VM_PlaySpeed = new SimpleStringProperty();
-//		
+
 		this.model = model;
 		this.model.addObserver(this);
-		getIProperty("TimeStep").addListener((obj,oldVal,newVal)->model.setTimeStep(getIProperty("TimeStep").get()));
+		getIProperty("TimeStep").addListener((obj,oldVal,newVal)->{
+			model.setTimeStep(getIProperty("TimeStep").get());
+		});
+//		getIProperty("UserTimeStep").addListener((obj,oldVal,newVal)->{
+//			if(selectedFeatureBool.get()) {
+//				model.setUserTimeStep(getIProperty("UserTimeStep").get());
+//				//this.model.redraw();
+//			}
+//		});
 		//this.VM_timeStep.addListener((obj,oldVal,newVal)->VM_CurTimeStep.setValue(VM_timeStep.get()));
 		//this.VM_CurTimeStep.addListener((obj,oldVal,newVal)->model.setTimeStep((int)this.VM_CurTimeStep.get()));
 		getBProperty("FlightGear").addListener((obj,oldVal,newVal)->model.setIsSimulated(getBProperty("FlightGear").get()));
@@ -164,8 +150,13 @@ public class ViewModel implements Observer{
 					//getSProperty("CurTimeStepString").set((this.model.calculateTime(this.model.getTimeStep()/this.model.getSampleRate())));
 					getSProperty("CurTimeStep").set(model.calculateTime(model.getTimeStep()/model.getSampleRate()));
 					if(selectedFeatureBool.get()) {
-						model.displayGraphsCall(getSProperty("SelectedFeature").get());
+						System.out.println("234321! "+ model.getPoint());
+						if(!model.isAnomaly())
+							goodPoints.getData().add(model.getPoint());
+						else
+							badPoints.getData().add(model.getPoint());
 						
+						//model.displayGraphsCall(getSProperty("SelectedFeature").get());
 					}
 				});
 			}
@@ -187,6 +178,23 @@ public class ViewModel implements Observer{
 					getIProperty("MaxTime").set(this.model.getMaxTime());
 				});
 			}
+			else if(arg.equals("newGraph")) {
+				Platform.runLater(()->{
+				 System.out.println("ADPASA");
+				 goodPoints.getData().clear();
+				 badPoints.getData().clear();
+				 line.getData().clear();
+				 goodPoints.getData().addAll(model.getGoodPoints().getData());
+				 badPoints.getData().addAll(model.getBadPoints().getData()); 
+				 line.getData().addAll(model.getLine().getData());
+				 selectedFeatureBool.set(true);
+				});
+			}
+			else if(arg.equals("Alert")) {
+				getSProperty("Alert").set(model.getAlert());
+			    getSProperty("Alert").set("");
+			}
+
 			//	VM_SettingsFilesList.set(this.model.getFileSettingsObsList());
 			//	VM_FeaturesList.set(this.model.getFeatureList());
 		}
@@ -290,6 +298,10 @@ public class ViewModel implements Observer{
 		getList("AlgoFiles").set(this.model.getAlgoList());
 		getSProperty("LastSettings").set(this.model.getLastSettingsUsed());
 		getSProperty("PlaySpeed").set(""+this.model.getPlaySpeed());
+		getSProperty("SampleRate").set(""+model.getSampleRate());
+		goodPoints = new XYChart.Series<Number,Number>();
+		badPoints = new XYChart.Series<Number,Number>();
+		line = new XYChart.Series<Number,Number>();
 	}
 	
 	public void play() {
@@ -415,9 +427,9 @@ public class ViewModel implements Observer{
 	}
 
 	public void featureSelected(String selectedFeature) {
-		selectedFeatureBool.set(true);
 		getSProperty("SelectedFeature").set(selectedFeature);;
 		model.setSelectedFeature(selectedFeature);
+		
 		//return model.displayGraphsCall(selectedFeature);
 		
 	}
@@ -432,6 +444,7 @@ public class ViewModel implements Observer{
 	}
 
 	public void algoSelected(String selectedItem) {
+		System.out.println(selectedItem);
 		model.setSelectedAlgorithm(selectedItem);
 		getSProperty("AlgoLabel").set(selectedItem);
 	}
@@ -461,6 +474,19 @@ public class ViewModel implements Observer{
 
 	public float getMaxValue(String selectedItem) {
 		return model.getMaxVal(selectedItem);
+	}
+
+	public Series<Number, Number> getBadPoints() {
+		return badPoints;
+	}
+
+	public Series<Number, Number> getGoodPoints() {
+		return goodPoints;
+	}
+
+	public Series<Number, Number> getLine() {
+		// TODO Auto-generated method stub
+		return line;
 	}
 
 

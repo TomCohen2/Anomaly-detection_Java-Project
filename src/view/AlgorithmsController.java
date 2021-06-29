@@ -66,6 +66,7 @@ public class AlgorithmsController {
 	}
 
 	public String getSelectedAlgo() {
+		System.out.println(AlgoFilesListView.getSelectionModel().getSelectedItem());
 		return AlgoFilesListView.getSelectionModel().getSelectedItem();
 	}
 }

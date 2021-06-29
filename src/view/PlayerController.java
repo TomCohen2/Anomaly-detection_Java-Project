@@ -89,4 +89,9 @@ public class PlayerController {
 		//timeStepSlider.setMax(iProperty.get());
 		
 	}
+
+	public void bindUserTimeStepSlider(IntegerProperty iProperty) {
+		iProperty.bind(timeStepSlider.valueProperty());
+		
+	}
 }

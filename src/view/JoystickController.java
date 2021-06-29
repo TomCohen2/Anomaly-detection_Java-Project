@@ -1,5 +1,6 @@
 package view;
 
+import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
@@ -17,8 +18,10 @@ public class JoystickController {
 		Runnable paintJoystick;
 		
 		void paint() {
-			if (paintJoystick!=null)
+			if (paintJoystick!=null) {
 				paintJoystick.run();
+				//paintJoystick.run();
+			}
 		}
 		
 		void bindThrottleSlider(DoubleProperty throttle) {

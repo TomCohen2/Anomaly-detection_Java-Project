@@ -6,17 +6,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import ViewModel.ViewModel;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.fxml.FXML;
-import javafx.scene.Node;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.chart.XYChart;
-import javafx.scene.chart.XYChart.Data;
-import javafx.scene.chart.XYChart.Series;
+import javafx.scene.control.Alert;
 import javafx.scene.control.TabPane;
 import javafx.scene.paint.Paint;
-import javafx.scene.shape.Circle;
-import test.Line;
-import test.Point;
 import test.TimeSeriesAnomalyDetector;
 
 public class MainWindowController {
@@ -34,7 +30,8 @@ public class MainWindowController {
 	
 	//Both tabs
 	@FXML Player player;
-	
+	StringProperty alert;
+	AtomicBoolean playFlag;
 	AtomicBoolean featureSelected;
 	ViewModel viewModel;
 	ExecutorService es = Executors.newFixedThreadPool(10);
@@ -42,14 +39,31 @@ public class MainWindowController {
 	
 	public void setViewModel(ViewModel viewModel){
 		this.viewModel = viewModel;
+		
+		alert = new SimpleStringProperty();
+		alert.bind(viewModel.getSProperty("Alert"));
+		alert.addListener((obs,old,nw)->{
+			if(nw != "") {
+				Alert alert = new Alert(Alert.AlertType.WARNING);
+				alert.setTitle("Alert");
+				alert.setContentText(nw);
+				alert.showAndWait();
+				if(nw.contains("no such file: ")) {
+					Platform.runLater(()->player.controller.flightSelection.getSelectionModel().clearSelection());
+					}	
+				}
+			});
+
+		
 		featureSelected = new AtomicBoolean(false);
+		playFlag = new AtomicBoolean(false);
 		//binding tabs for some system logic
 		viewModel.getIProperty("Tabs").bind(TabPanel.getSelectionModel().selectedIndexProperty());
 						//Settings
 		//binding
 		settings.controller.bindLoadedSettings(viewModel.getSProperty("LastSettings"));
 		settings.controller.bindFlightGearBoolean(viewModel.getBProperty("FlightGear"));;
-		
+
 		
 		//binding Joystick
 		joystick.controller.bindRudderSlider(viewModel.getDProperty("Rudder"));
@@ -71,118 +85,126 @@ public class MainWindowController {
 		algorithms.controller.bindTrainFileName(viewModel.getSProperty("TrainFileName"));
 		algorithms.controller.bindTestFileName(viewModel.getSProperty("TestFileName"));
 		
-		//binding FeatureList
-		
+		graphs.controller.bindFlightGearBoolean(viewModel.getBProperty("FlightGear"));
+		graphs.controller.bindBadPoints(viewModel.getBadPoints());
+		graphs.controller.bindGoodPoints(viewModel.getGoodPoints());
+		graphs.controller.bindLine(viewModel.getLine());
 		//binding Player panel
 		player.controller.bindCurTimeStep(viewModel.getSProperty("CurTimeStep"));
 		player.controller.bindMaxTimestep(viewModel.getSProperty("MaxTimeStep"));
 		player.controller.bindPlaySpeed(viewModel.getSProperty("PlaySpeed"));
 		player.controller.bindTimeStepSlider(viewModel.getIProperty("TimeStep"));
+//		player.controller.bindUserTimeStepSlider(viewModel.getIProperty("UserTimeStep"));
 		player.controller.bindTimeSliderMax(viewModel.getIProperty("MaxTime"));
 		player.controller.bindFlightSelected(viewModel.getSProperty("SelectedFlightToDisplay"));
 	}
 	
-	public void printGraphs() {
-		test = viewModel.getGraphStruct();
-		graphs.controller.removeFromLineChart();
-		float min,max;
-		//min = viewModel.getMinValue(FeaturesList.getSelectionModel().getSelectedItem());
-		//max = viewModel.getMaxValue(FeaturesList.getSelectionModel().getSelectedItem());
-		min = test.getMinVal();
-		max = test.getMaxVal();
-			
-		String[]args = test.getStr().split(",");
-		XYChart.Series<Number,Number> series = new XYChart.Series<>();
-		XYChart.Series<Number,Number> series2 = new XYChart.Series<>();//for the line and circle
-		XYChart.Series<Number,Number> series3 = new XYChart.Series<>();
-		switch(args[0]) {
-		case "LR":
-			graphs.controller.linearView();
-			graphs.controller.removeFromLineChart();
-			graphs.controller.setLineChartID("LR");
-			//xAxis = new NumberAxis(0,50,1);
-			//yAxis = new NumberAxis(-25,25,1);
-			//xAxis.setAutoRanging(true);
-			//yAxis.setAutoRanging(true);
-			XYChart.Series<Number,Number> feature1Series = new XYChart.Series<>();
-			XYChart.Series<Number,Number> feature2Series = new XYChart.Series<>();
-			//System.out.println(args[1] + " " + args[2]);
-			feature1Series.setName(args[1]);
-			feature2Series.setName(args[2]);
-			series.setName("Points");
-			test.getPoints().getData().forEach((a)->{
-				Node node = a.getNode();
-				//a.getNode().setScaleX(0.1);
-				//a.getNode().setScaleY(0.1);
-				series.getData().add(a);
-			});
-			test.getFeature1Points().getData().forEach(a->{
-				Node node = a.getNode();
-				feature1Series.getData().add(a);
-			});
-			test.getFeature2Points().getData().forEach(a->{
-				Node node = a.getNode();
-				feature2Series.getData().add(a);
-			});
-			Line l = test.getL();
-			series2.setName("Correlation line");
-			series2.getData().add(new XYChart.Data<Number, Number>(min,l.f(min)));
-			series2.getData().add(new XYChart.Data<Number, Number>(max,l.f(max)));
-			graphs.controller.LineChart.setCreateSymbols(true);
-			graphs.controller.Feature1LC.setCreateSymbols(false);
-			graphs.controller.Feature2LC.setCreateSymbols(false);
-			//graphs.controller.LineChart.setLegendVisible(false);
-			//graphs.controller.LineChart.setAnimated(false);
-			//graphs.controller.LineChart.setVerticalZeroLineVisible(false);
-			
-			//LineChart.getXAxis().setLayoutX(100);
-			//LineChart.getYAxis().setLayoutY(100);
-			graphs.controller.add2LineChart(series);
-			graphs.controller.add2LineChart(series2);
-			graphs.controller.add2Feature1(feature1Series);
-			graphs.controller.add2Feature2(feature2Series);
-			break;
-		case "Z":
-			graphs.controller.zScoreView();
-			graphs.controller.removeFromLineChart();
-			graphs.controller.setLineChartID("Z");
-			l = test.getL();
-			series.getData().clear();
-			max = test.getMaxVal();
-			test.getPoints().getData().forEach((a)->{
-				//a.getNode().setScaleX(0.1);
-				//a.getNode().setScaleY(0.1);
-			//	System.out.println("woop woop "+a);
-				series.getData().add(a);
-			});
-			
-			series2.getData().clear();
-			series2.getData().add(new XYChart.Data<Number, Number>(0,l.f(0)));
-			series2.getData().add(new XYChart.Data<Number, Number>(max,l.f(0)));
-			series3.getData().add(new XYChart.Data<Number,Number>(0,0));
-			series2.setName("TX");
-			series.setName("Z-Scores feature " + args[1]);
-			series3.setName("(0,0)");
-			graphs.controller.add2LineChart(series,series3,series2);
-			//graphs.controller.add2LineChart(series3);
-			//graphs.controller.add2LineChart(series2);
-			break;
-		case "HYB":
-			graphs.controller.welzlView();
-			graphs.controller.removeFromBubbleChart();
-			graphs.controller.removeFromLineChart();
-			graphs.controller.setBubbleChartID("welzl");;
-			Point center = test.getC().getCenter();
-			float radius = test.getC().getRadius();
-			Series<Number, Number> welzl = new Series<>();
-			welzl.getData().add(new XYChart.Data<>(center.x,center.y,radius));
-			welzl.setName("Min Enclosing Circle");
-			graphs.controller.add2Welzl(welzl);
-			graphs.controller.add2Welzl(test.getPoints());
-			break;					
-		}
-	}
-	
+//	public void printGraphs() {
+////		while(playFlag.get()) {
+//			test = viewModel.getGraphStruct();
+//			graphs.controller.removeFromLineChart();
+//			double sampleRate = Double.parseDouble(viewModel.getSProperty("SampleRate").get());
+//			double playSpeed = Double.parseDouble(viewModel.getSProperty("PlaySpeed").get());
+//			float min,max;
+//			//min = viewModel.getMinValue(FeaturesList.getSelectionModel().getSelectedItem());
+//			//max = viewModel.getMaxValue(FeaturesList.getSelectionModel().getSelectedItem());
+//			min = test.getMinVal();
+//			max = test.getMaxVal();
+//				
+//			String[]args = test.getStr().split(",");
+//			XYChart.Series<Number,Number> series = new XYChart.Series<>();
+//			XYChart.Series<Number,Number> series2 = new XYChart.Series<>();//for the line and circle
+//			XYChart.Series<Number,Number> series3 = new XYChart.Series<>();
+//			System.out.println("Test.");
+//			switch(args[0]) {
+//			case "LR":
+//				graphs.controller.linearView();
+//				//graphs.controller.removeFromLineChart();
+//				graphs.controller.setLineChartID("LR");
+//				//xAxis = new NumberAxis(0,50,1);
+//				//yAxis = new NumberAxis(-25,25,1);
+//				//xAxis.setAutoRanging(true);
+//				//yAxis.setAutoRanging(true);
+//				XYChart.Series<Number,Number> feature1Series = new XYChart.Series<>();
+//				XYChart.Series<Number,Number> feature2Series = new XYChart.Series<>();
+//				//System.out.println(args[1] + " " + args[2]);
+//				feature1Series.setName(args[1]);
+//				feature2Series.setName(args[2]);
+//				series.setName("Points");
+//				test.getPoints().getData().forEach((a)->{
+//					Node node = a.getNode();
+//					//a.getNode().setScaleX(0.1);
+//					//a.getNode().setScaleY(0.1);
+//					series.getData().add(a);
+//				});
+//				test.getFeature1Points().getData().forEach(a->{
+//					Node node = a.getNode();
+//					feature1Series.getData().add(a);
+//				});
+//				test.getFeature2Points().getData().forEach(a->{
+//					Node node = a.getNode();
+//					feature2Series.getData().add(a);
+//				});
+//				Line l = test.getL();
+//				series2.setName("Correlation line");
+//				series2.getData().add(new XYChart.Data<Number, Number>(min,l.f(min)));
+//				series2.getData().add(new XYChart.Data<Number, Number>(max,l.f(max)));
+//				graphs.controller.LineChart.setCreateSymbols(true);
+//				graphs.controller.Feature1LC.setCreateSymbols(false);
+//				graphs.controller.Feature2LC.setCreateSymbols(false);
+//				//graphs.controller.LineChart.setLegendVisible(false);
+//				//graphs.controller.LineChart.setAnimated(false);
+//				//graphs.controller.LineChart.setVerticalZeroLineVisible(false);
+//				
+//				//LineChart.getXAxis().setLayoutX(100);
+//				//LineChart.getYAxis().setLayoutY(100);
+//				graphs.controller.add2LineChart(series);
+//				graphs.controller.add2LineChart(series2);
+//				graphs.controller.add2Feature1(feature1Series);
+//				graphs.controller.add2Feature2(feature2Series);
+//				break;
+//			case "Z":
+//				graphs.controller.zScoreView();
+//				//graphs.controller.removeFromLineChart();
+//				graphs.controller.setLineChartID("Z");
+//				l = test.getL();
+//				series.getData().clear();
+//				max = test.getMaxVal();
+//				test.getPoints().getData().forEach((a)->{
+//					//a.getNode().setScaleX(0.1);
+//					//a.getNode().setScaleY(0.1);
+//				//	System.out.println("woop woop "+a);
+//					series.getData().add(a);
+//				});
+//				
+//				series2.getData().clear();
+//				series2.getData().add(new XYChart.Data<Number, Number>(0,l.f(0)));
+//				series2.getData().add(new XYChart.Data<Number, Number>(max,l.f(0)));
+//				series3.getData().add(new XYChart.Data<Number,Number>(0,0));
+//				series2.setName("TX");
+//				series.setName("Z-Scores feature " + args[1]);
+//				series3.setName("(0,0)");
+//				graphs.controller.add2LineChart(series,series3,series2);
+//				//graphs.controller.add2LineChart(series3);
+//				//graphs.controller.add2LineChart(series2);
+//				break;
+//			case "HYB":
+//				graphs.controller.welzlView();
+//				//graphs.controller.removeFromBubbleChart();
+//				graphs.controller.removeFromLineChart();
+//				graphs.controller.setBubbleChartID("welzl");;
+//				Point center = test.getC().getCenter();
+//				float radius = test.getC().getRadius();
+//				Series<Number, Number> welzl = new Series<>();
+//				welzl.getData().add(new XYChart.Data<>(center.x,center.y,radius));
+//				welzl.setName("Min Enclosing Circle");
+//				graphs.controller.add2Welzl(welzl);
+//				graphs.controller.add2Welzl(test.getPoints());
+//				break;					
+//			}
+////			try {Thread.sleep((long) (1000/(sampleRate*playSpeed)));} catch (InterruptedException e) {}
+////		}
+//	}
 	public void init() {
 		settings.controller.addToSettingsList(viewModel.getSavedSettingFileNames());
 		settings.controller.onDelete = ()->viewModel.deleteSettingsFile(settings.controller.SettingsFilesListView.getSelectionModel().getSelectedItem());
@@ -195,13 +217,23 @@ public class MainWindowController {
 		
 		algorithms.controller.onDelete = ()->viewModel.deleteAlgo(algorithms.controller.getSelectedAlgo());
 		algorithms.controller.onNewAlgo = ()->viewModel.newAlgoFile();
-		algorithms.controller.onSelectAlgo = ()->viewModel.algoSelected(algorithms.controller.getSelectedAlgo());
+		algorithms.controller.onSelectAlgo = ()->{
+			viewModel.algoSelected(algorithms.controller.getSelectedAlgo());
+			graphs.controller.linearView();
+		};
 		algorithms.controller.onUpTrainCSV = settings.controller.onCSVFile;
 		algorithms.controller.onUpTestCSV = ()->viewModel.uploadTestFile();
 		algorithms.controller.addToAlgoList(viewModel.getAlgorithms());
 		
-		player.controller.onPause = ()->viewModel.pause();
-		player.controller.onStop = ()->viewModel.stop();
+		player.controller.onPause = ()->{
+			viewModel.pause();
+			playFlag.set(false);
+		};
+		player.controller.onStop = ()->{
+			viewModel.stop();
+			playFlag.set(false);
+		};
+		
 		player.controller.onFastForward = ()->viewModel.fastForward();
 		player.controller.onFFastForawrd = ()->viewModel.superFastForward();
 		player.controller.onRewind = ()->viewModel.rewind();
@@ -209,21 +241,13 @@ public class MainWindowController {
 		player.controller.timeStepSlider.setMin(0);
 	//	player.controller.timeStepSlider.setMax(viewModel.getMaxTimeStep());
 		player.controller.onPlay = ()->{
-			viewModel.play();
-			es.submit(()->joystick.controller.paint());
-			if(featureSelected.get()) {
-				System.out.println("######################################################");
-				//Platform.runLater(()->{
-				es.submit(()->{
-						int i=0;
-					//	while(true) {
-						System.out.println("The truth is out there " + i++);
-						featureList.controller.featureSelected();
-						//Thread.sleep(1000)
-						//}
-				});
-			}
-		};
+			if (!playFlag.get()) {
+				playFlag.set(true);
+				viewModel.play();
+				es.submit(()->joystick.controller.paint());
+				}
+		}
+		
 		player.controller.flightSelection.getItems().add("Train Flight");
 		player.controller.flightSelection.getItems().add("Test Flight");
 		player.controller.flightSelection.setValue(null);

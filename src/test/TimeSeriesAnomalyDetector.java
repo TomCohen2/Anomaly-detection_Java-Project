@@ -12,12 +12,17 @@ public interface TimeSeriesAnomalyDetector {
 	
 	
 	class GraphStruct{
-		XYChart.Series<Number,Number> points;
-		XYChart.Series<Number,Number> feature1Points;
-		XYChart.Series<Number,Number> feature2Points;
+//		XYChart.Series<Number,Number> points;
+//		XYChart.Series<Number,Number> feature1Points;
+//		XYChart.Series<Number,Number> feature2Points;
+//		XYChart.Series<Number,Number> goodPoints;
+//		XYChart.Series<Number,Number> badPoints;
+		String str;
+		double threshold;
 		Line l;
 		Circle c;
-		String str;
+		int feature1IDX;
+		int feature2IDX;
 		float minVal;
 		float maxVal;
 		float minYVal;
@@ -26,27 +31,32 @@ public interface TimeSeriesAnomalyDetector {
 		
 		
 		
-		public XYChart.Series<Number, Number> getFeature1Points() {
-			return feature1Points;
-		}
-
-		public void setFeature1Points(XYChart.Series<Number, Number> feature1Points) {
-			this.feature1Points = feature1Points;
-		}
-		public void setFeature2Points(XYChart.Series<Number, Number> feature2Points) {
-			this.feature2Points = feature2Points;
-		}
-
-		public XYChart.Series<Number, Number> getFeature2Points() {
-			return feature2Points;
-		}
+//		public XYChart.Series<Number, Number> getFeature1Points() {
+//			return feature1Points;
+//		}
+//
+//		public void setFeature1Points(XYChart.Series<Number, Number> feature1Points) {
+//			this.feature1Points = feature1Points;
+//		}
+//		public void setFeature2Points(XYChart.Series<Number, Number> feature2Points) {
+//			this.feature2Points = feature2Points;
+//		}
+//
+//		public XYChart.Series<Number, Number> getFeature2Points() {
+//			return feature2Points;
+//		}
 
 
 		public GraphStruct() {
 			//linear reg
-			this.points = new XYChart.Series<>();
-			this.feature1Points = new XYChart.Series<>();
-			this.feature2Points = new XYChart.Series<>();
+//			this.points = new XYChart.Series<>();
+//			this.feature1Points = new XYChart.Series<>();
+//			this.feature2Points = new XYChart.Series<>();
+//			this.goodPoints = new XYChart.Series<>();
+//			this.badPoints = new XYChart.Series<>();
+			threshold = Float.MIN_VALUE;
+			feature1IDX = Integer.MIN_VALUE;
+			feature2IDX = Integer.MIN_VALUE;
 			l = null;
 			minVal = Float.MIN_VALUE;
 			maxVal = Float.MAX_VALUE;
@@ -58,23 +68,54 @@ public interface TimeSeriesAnomalyDetector {
 			str = null;
 		}
 
-		public GraphStruct(XYChart.Series<Number,Number> points,XYChart.Series<Number,Number> feature1Points,XYChart.Series<Number,Number> feature2Points, Line l, Circle c, String str, float min, float max, float minY, float maxY, float[] zScores) {
-			super();
-			this.points.getData().addAll(points.getData());
-			this.feature1Points.getData().addAll(feature1Points.getData());
-			this.feature2Points.getData().addAll(feature2Points.getData());
-			this.l = l;
-			this.c = c;
-			this.str=str;
-			this.minVal=min;
-			this.maxVal=max;
-			this.minYVal=minY;
-			this.maxYVal=maxY;
-			this.zScores = new float[zScores.length];
-			setzScores(zScores);
-			
-		}
+
+//		public GraphStruct(XYChart.Series<Number,Number> points,XYChart.Series<Number,Number> feature1Points,XYChart.Series<Number,Number> feature2Points, Line l, Circle c, String str, float min, float max, float minY, float maxY, float[] zScores) {
+//			super();
+////			this.points.getData().addAll(points.getData());
+////			this.feature1Points.getData().addAll(feature1Points.getData());
+////			this.feature2Points.getData().addAll(feature2Points.getData());
+//			this.l = l;
+//			this.c = c;
+////			this.str=str;
+//			this.minVal=min;
+//			this.maxVal=max;
+//			this.minYVal=minY;
+//			this.maxYVal=maxY;
+//			this.zScores = new float[zScores.length];
+//			setzScores(zScores);
+//			
+//		}
 		
+		public double getThreshold() {
+			return threshold;
+		}
+
+
+		public void setThreshold(double threshold) {
+			this.threshold = threshold;
+		}
+
+
+		public int getFeature1IDX() {
+			return feature1IDX;
+		}
+
+
+		public void setFeature1IDX(int feature1idx) {
+			feature1IDX = feature1idx;
+		}
+
+
+		public int getFeature2IDX() {
+			return feature2IDX;
+		}
+
+
+		public void setFeature2IDX(int feature2idx) {
+			feature2IDX = feature2idx;
+		}
+
+
 		public float[] getzScores() {
 			return zScores;
 		}
@@ -124,13 +165,13 @@ public interface TimeSeriesAnomalyDetector {
 		public void setStr(String str) {
 			this.str = str;
 		}
-
-		public XYChart.Series<Number,Number> getPoints() {
-			return points;
-		}
-		public void setPoints(XYChart.Series<Number,Number> points) {
-			this.points.getData().addAll(points.getData());
-		}
+//
+//		public XYChart.Series<Number,Number> getPoints() {
+//			return points;
+//		}
+//		public void setPoints(XYChart.Series<Number,Number> points) {
+//			this.points.getData().addAll(points.getData());
+//		}
 		public Line getL() {
 			return l;
 		}

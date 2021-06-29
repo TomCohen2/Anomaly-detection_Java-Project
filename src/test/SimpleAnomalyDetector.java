@@ -121,9 +121,10 @@ public class SimpleAnomalyDetector implements TimeSeriesAnomalyDetector {
 	
 	@Override
 	public GraphStruct display(String colName) {
-		GraphStruct ret = new GraphStruct();
+		GraphStruct ret = null;
 		for (CorrelatedFeatures cf : corList) {
-			if (cf.feature1.equals(colName)) {
+			if (cf.feature1.equals(colName) || cf.feature2.equals(colName)) {
+				ret = new GraphStruct();
 				ret.setL(cf.lin_reg);
 				ret.setStr("LR,"+cf.feature1 + "," + cf.feature2);
 			}

@@ -1,11 +1,14 @@
 package view;
 
+import javafx.beans.property.BooleanProperty;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.chart.BubbleChart;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
 import javafx.scene.chart.XYChart.Series;
+import javafx.scene.control.CheckBox;
 
 public class GraphsController {
 	@FXML
@@ -22,6 +25,13 @@ public class GraphsController {
 	Canvas welzlCanvas;
 	@FXML
 	BubbleChart<Number,Number> bubbleChart;
+	@FXML
+	CheckBox Simulator;
+	
+	XYChart.Series<Number, Number> goodPoints = new XYChart.Series<Number,Number>();
+	XYChart.Series<Number, Number> badPoints = new XYChart.Series<Number,Number>();
+	XYChart.Series<Number, Number> line = new XYChart.Series<Number,Number>();
+
 	
 	Runnable paintCircle;
 	
@@ -40,6 +50,11 @@ public class GraphsController {
 	}
 	
 	public void linearView() {
+		System.out.println("YANIV GADOL");
+		LineChart.getData().addAll(line,goodPoints,badPoints);
+		LineChart.setCreateSymbols(true);
+//		Feature1LC.setCreateSymbols(false);
+//		graphs.controller.Feature2LC.setCreateSymbols(false);
 		bubbleChart.visibleProperty().set(false);
 		LineChart.visibleProperty().set(true);
 		Feature1LC.visibleProperty().set(true);
@@ -58,9 +73,12 @@ public class GraphsController {
 	
 
 	public void removeFromLineChart() {
-		LineChart.getData().clear();
-		Feature1LC.getData().clear();
-		Feature2LC.getData().clear();
+		if (LineChart.getData() != null)
+			LineChart.getData().clear();
+		if (Feature1LC.getData() != null)
+			Feature1LC.getData().clear();
+		if (Feature2LC.getData() != null)
+			Feature2LC.getData().clear();
 	}
 
 	public void add2Feature1(Series<Number, Number> series) {
@@ -92,6 +110,21 @@ public class GraphsController {
 	public void removeFromBubbleChart() {
 		bubbleChart.getData().clear();
 	}
-
+	
+	void bindFlightGearBoolean(BooleanProperty FG) {
+		FG.bindBidirectional(Simulator.selectedProperty());
+	}
+	
+	void bindGoodPoints(XYChart.Series<Number, Number> data) {
+		goodPoints.dataProperty().bind(data.dataProperty());
+	}
+	
+	void bindBadPoints(XYChart.Series<Number, Number> data) {
+		badPoints.dataProperty().bind(data.dataProperty());
+	}
+	
+	void bindLine(XYChart.Series<Number, Number> data) {
+		line.dataProperty().bind(data.dataProperty());
+	}
 	
 }
