@@ -1,5 +1,6 @@
 package view;
 
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.StringProperty;
 import javafx.fxml.FXML;
@@ -78,6 +79,11 @@ public class PlayerController {
 	
 	public void bindTimeStepSlider(IntegerProperty timeStep) {
 		timeStepSlider.valueProperty().bindBidirectional(timeStep);;
+		
+	}
+	
+	public void bindTimeStepSliderChange(BooleanProperty bool) {
+		bool.bind(timeStepSlider.valueChangingProperty());
 	}
 	
 	public void bindFlightSelected(StringProperty selectedFlight) {

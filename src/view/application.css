@@ -1,20 +1,38 @@
-.default-color0.chart-series-line { -fx-stroke: MediumBlue; }
-.default-color0.chart-legend-item-symbol{-fx-background-color: MediumBlue; }
-.default-color0.chart-line-symbol { -fx-background-color: transparent, transparent; }
+#LR .default-color0.chart-series-line { -fx-stroke: MediumBlue; }
+#LR .default-color0.chart-legend-item-symbol{-fx-background-color: MediumBlue; }
+#LR .default-color0.chart-line-symbol { -fx-background-color: transparent, transparent; }
 
-.default-color1.chart-series-line { -fx-stroke: transparent; }
-.default-color1.chart-legend-item-symbol{-fx-background-color: green; }
-.default-color1.chart-line-symbol { 
+#LR .default-color1.chart-series-line { -fx-stroke: transparent; }
+#LR .default-color1.chart-legend-item-symbol{-fx-background-color: green; }
+#LR .default-color1.chart-line-symbol { 
     -fx-background-color: transparent, green;
 }
-.default-color2.chart-series-line { -fx-stroke: transparent; }
-.default-color2.chart-legend-item-symbol{-fx-background-color: red;}
-.default-color2.chart-line-symbol {-fx-background-color: transparent, red;}
+#LR .default-color2.chart-series-line { -fx-stroke: transparent; }
+#LR .default-color2.chart-legend-item-symbol{-fx-background-color: red;}
+#LR .default-color2.chart-line-symbol {-fx-background-color:  red;
+}
 
 
 
 
-#welzl .chart-bubble.series0.data0.default-color0 {
+#Z .default-color0.chart-series-line { -fx-stroke: MediumBlue; }
+#Z .default-color0.chart-legend-item-symbol{-fx-background-color: MediumBlue; }
+#Z .default-color0.chart-line-symbol { -fx-background-color: transparent, transparent; }
+
+#Z .default-color1.chart-series-line { -fx-stroke: green; }
+#Z .default-color1.chart-legend-item-symbol{-fx-background-color: transparent; }
+#Z .default-color1.chart-line-symbol { 
+    -fx-background-color:transparent;
+}
+#Z .default-color2.chart-series-line { -fx-stroke: red; }
+#Z .default-color2.chart-legend-item-symbol{-fx-background-color: transparent;}
+#Z .default-color2.chart-line-symbol {-fx-background-color: transparent;
+}
+
+
+
+
+#W .chart-bubble.series0.data0.default-color0 {
     -fx-bubble-fill: transparent;
     -fx-bubble-color: black;
     -fx-bubble-outline: 1px;

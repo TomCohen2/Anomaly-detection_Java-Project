@@ -34,13 +34,13 @@ public class AlgorithmsController {
 	public void newAlgo() {
 		if(onNewAlgo!=null){
 			onNewAlgo.run();
+			AlgoFilesListView.refresh();
 		}
 	}
 	
 	public void uploadTrainCSV() {
 		if(onUpTrainCSV!=null){
 			onUpTrainCSV.run();
-			AlgoFilesListView.refresh();
 		}
 	}
 	
@@ -66,7 +66,7 @@ public class AlgorithmsController {
 	}
 
 	public String getSelectedAlgo() {
-		System.out.println(AlgoFilesListView.getSelectionModel().getSelectedItem());
+		//System.out.println(AlgoFilesListView.getSelectionModel().getSelectedItem());
 		return AlgoFilesListView.getSelectionModel().getSelectedItem();
 	}
 }

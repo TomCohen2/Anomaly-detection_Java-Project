@@ -37,38 +37,16 @@ public class ViewModel implements Observer{
 	HashMap<String,BooleanProperty> BPropertyMap;
 	HashMap<String,ObjectProperty<ObservableList<String>>> LPropertyMap;
 	AtomicBoolean selectedFeatureBool;
-	String selectedFeature;
+	String selectedFeature,algoGraph;
 	XYChart.Series<Number, Number> goodPoints;
 	XYChart.Series<Number, Number> badPoints;
 	XYChart.Series<Number, Number> line;
-	//
-//	DoubleProperty VM_AileronVal;
-//	DoubleProperty VM_ElevatorVal;
-//	DoubleProperty VM_RudderVal;
-//	DoubleProperty VM_ThrottleVal;
-//	DoubleProperty VM_FlightHeightVal;
-//	DoubleProperty VM_FlightSpeedVal;
-//	DoubleProperty VM_RollVal;
-//	DoubleProperty VM_PitchVal;
-//	DoubleProperty VM_YawVal;
-	
-//	StringProperty VM_MaxTimeStep;
-//	StringProperty VM_LoadedSettings;
-//	StringProperty VM_AlgorithmSelected;
-//	StringProperty VM_TrainFileName;
-//	StringProperty VM_TestFileName;
-//	IntegerProperty VM_timeStep;
-//	IntegerProperty VM_CurTimeStep;
-//	StringProperty VM_StringTimeStep;
-//	BooleanProperty VM_isSimulated;
-//	IntegerProperty VM_DISP_Feature1;
-//	IntegerProperty VM_DISP_Feature2;
-//	ObjectProperty<ObservableList<String>> VM_SettingsFilesList;
-//	ObjectProperty<ObservableList<String>> VM_FeaturesList;
-//	ObjectProperty<ObservableList<String>> VM_AlgoFiles;
-//	IntegerProperty VM_TabPane;
-//	StringProperty VM_PlaySpeed;
-	 
+	XYChart.Series<Number,Number> Feature1;
+	XYChart.Series<Number,Number> Feature2;
+	XYChart.Series welzlCircle;
+	XYChart.Series badWelzl;
+	XYChart.Series goodWelzl;
+
 	public ViewModel(Model model) {
 		NPropertyMap = new HashMap<>();
 		SPropertyMap = new HashMap<>();
@@ -79,26 +57,26 @@ public class ViewModel implements Observer{
 		this.model = model;
 		this.model.addObserver(this);
 		getIProperty("TimeStep").addListener((obj,oldVal,newVal)->{
-			model.setTimeStep(getIProperty("TimeStep").get());
+				model.setTimeStep(getIProperty("TimeStep").get());
 		});
-//		getIProperty("UserTimeStep").addListener((obj,oldVal,newVal)->{
-//			if(selectedFeatureBool.get()) {
-//				model.setUserTimeStep(getIProperty("UserTimeStep").get());
-//				//this.model.redraw();
-//			}
-//		});
-		//this.VM_timeStep.addListener((obj,oldVal,newVal)->VM_CurTimeStep.setValue(VM_timeStep.get()));
-		//this.VM_CurTimeStep.addListener((obj,oldVal,newVal)->model.setTimeStep((int)this.VM_CurTimeStep.get()));
 		getBProperty("FlightGear").addListener((obj,oldVal,newVal)->model.setIsSimulated(getBProperty("FlightGear").get()));
 		getIProperty("Tabs").addListener((obj,oldVal,newVal)->model.setCurrentTab(getIProperty("Tabs").get()));
 		getSProperty("SelectedFlightToDisplay").addListener((obj,oldVal,newVal)->model.setSelectedFlightToDisplay(getSProperty("SelectedFlightToDisplay").get()));
 		StringProperty temp = getSProperty("PlaySpeed");
 		temp.addListener((obd,oldVal,newVal)->{
-		if(!temp.get().equals("") && !temp.get().equals("0") && !temp.get().equals("0.0") && !temp.get().equals("0."))// && temp.get().matches("\\d+"))
-			model.setPlaySpeed(Double.parseDouble(temp.get()));
-		else
-			model.setPlaySpeed(1.0); // awful patch.
+			double val = 1;
+			try {
+				val = Double.parseDouble(temp.get());
+			}catch(NumberFormatException e) {
+				model.setAlert("Invalid play speed input.");
+			}
+			if(val > 100) {
+				model.setAlert("Invalid play speed, Limit: 100.");
+				val=100;
+			}
+			model.setPlaySpeed(val);
 		});
+		
 	}
 
 	public boolean getSelectedFeatureBool() {
@@ -119,6 +97,7 @@ public class ViewModel implements Observer{
 			}
 			else if(arg.equals("TrainFile")) { //New train file has been selected
 				Platform.runLater(()->{
+					System.out.println("idan" +this.model.getTrainFileName());
 					getSProperty("TrainFileName").set(this.model.getTrainFileName());
 					getList("Features").set(this.model.getFeatureList());
 					System.out.println(getList("Features").asString());
@@ -136,7 +115,6 @@ public class ViewModel implements Observer{
 			else if(arg.equals("TimeStep")) { // TimeStep has been changed.
 				Platform.runLater(()->{
 					getIProperty("TimeStep").set(this.model.getTimeStep());
-					
 					getDProperty("Elevator").set(this.model.getElevatorVal());
 					getDProperty("Aileron").set(this.model.getAileronVal());
 					getDProperty("Rudder").set(this.model.getRudderVal());
@@ -147,16 +125,23 @@ public class ViewModel implements Observer{
 					getDProperty("Pitch").set(this.model.getPitchVal());
 					getDProperty("Yaw").set(this.model.getYawVal());
 					getSProperty("MaxTimeStep").set((this.model.calculateMaxTimeStep()));
-					//getSProperty("CurTimeStepString").set((this.model.calculateTime(this.model.getTimeStep()/this.model.getSampleRate())));
 					getSProperty("CurTimeStep").set(model.calculateTime(model.getTimeStep()/model.getSampleRate()));
+					
 					if(selectedFeatureBool.get()) {
-						System.out.println("234321! "+ model.getPoint());
 						if(!model.isAnomaly())
-							goodPoints.getData().add(model.getPoint());
+							if(!algoGraph.equals("W"))
+								goodPoints.getData().add(model.getPoint());
+							else
+								goodWelzl.getData().add(model.getWelslPoint());
 						else
-							badPoints.getData().add(model.getPoint());
-						
-						//model.displayGraphsCall(getSProperty("SelectedFeature").get());
+							if(!algoGraph.equals("W"))
+								badPoints.getData().add(model.getPoint());
+							else
+								goodWelzl.getData().add(model.getWelslPoint());
+						if(!algoGraph.equals("Z")) {
+							Feature1.getData().add(model.getFeaturePoint(1));
+							Feature2.getData().add(model.getFeaturePoint(2));
+						}
 					}
 				});
 			}
@@ -164,13 +149,14 @@ public class ViewModel implements Observer{
 					Platform.runLater(()->{
 						getSProperty("PlaySpeed").set(""+this.model.getPlaySpeed());
 					});
-				}
+			}
 						
 			else if(arg.equals("Settings")) {
 				Platform.runLater(()->{
 					getSProperty("LoadedSettings").set(this.model.getLastSettingsUsed());
 				});
 			}
+			
 			else if(arg.equals("MaxTime")) {
 				Platform.runLater(()->{
 					getSProperty("CurTimeStep").set(model.calculateTime(model.getTimeStep()));
@@ -178,26 +164,89 @@ public class ViewModel implements Observer{
 					getIProperty("MaxTime").set(this.model.getMaxTime());
 				});
 			}
-			else if(arg.equals("newGraph")) {
+			
+			else if(arg.equals("newGraphLR")) {
 				Platform.runLater(()->{
-				 System.out.println("ADPASA");
-				 goodPoints.getData().clear();
-				 badPoints.getData().clear();
-				 line.getData().clear();
+				 clearGraph();
+				 goodPoints.nameProperty().set("Normal");
+				 badPoints.nameProperty().set("Anomaly");
+				 getBProperty("LCVis").set(true);
+				 getBProperty("BCVis").set(false);
+				 getBProperty("F1Vis").set(true);
+				 getBProperty("F2Vis").set(true);
 				 goodPoints.getData().addAll(model.getGoodPoints().getData());
 				 badPoints.getData().addAll(model.getBadPoints().getData()); 
 				 line.getData().addAll(model.getLine().getData());
+				 Feature1.getData().addAll(model.getFeatureData(1).getData());
+				 Feature2.getData().addAll(model.getFeatureData(2).getData());
+				 algoGraph = "LR";
 				 selectedFeatureBool.set(true);
 				});
 			}
-			else if(arg.equals("Alert")) {
-				getSProperty("Alert").set(model.getAlert());
-			    getSProperty("Alert").set("");
+			
+			else if(arg.equals("newGraphZ")) {
+				Platform.runLater(()->{
+					 getBProperty("LCVis").set(true);
+					 getBProperty("BCVis").set(false);
+					 getBProperty("F1Vis").set(false);
+					 getBProperty("F2Vis").set(false);
+					 clearGraph();
+					 goodPoints.getData().addAll(model.getGoodPoints().getData());
+					 badPoints.getData().addAll(model.getBadPoints().getData()); 
+					 line.getData().addAll(model.getLine().getData());	
+					 algoGraph = "Z";
+					 selectedFeatureBool.set(true);
+				});
 			}
-
-			//	VM_SettingsFilesList.set(this.model.getFileSettingsObsList());
-			//	VM_FeaturesList.set(this.model.getFeatureList());
+			
+			else if(arg.equals("newGraphW")) {
+				Platform.runLater(()->{
+					 getBProperty("LCVis").set(false);
+					 getBProperty("BCVis").set(true);
+					 getBProperty("F1Vis").set(true);
+					 getBProperty("F2Vis").set(true);
+					 goodWelzl.getData().addAll(model.getGoodWelzel().getData());
+					 badWelzl.getData().addAll(model.getBadWelzl().getData()); 
+					 welzlCircle.getData().addAll(model.getWelzlCircle().getData());
+					 algoGraph = "W";
+					 selectedFeatureBool.set(true);
+				});
+			}
+			
+			else if(arg.equals("Alert")) {
+				Platform.runLater(()->{					
+					getSProperty("Alert").set(model.getAlert());
+					getSProperty("Alert").set("");
+				});
+			}
+			
+			else if(arg.equals("pleaseClear")) {
+				Platform.runLater(()->{					
+					goodPoints.getData().clear();
+					badPoints.getData().clear();
+					goodPoints.getData().addAll(model.getGoodPoints().getData());
+					badPoints.getData().addAll(model.getBadPoints().getData()); 
+				});
+			}
+			
+			else if(arg.equals("NoGraph!")) {
+				Platform.runLater(()->{					
+					clearGraph();
+					selectedFeatureBool.set(false);
+				});
+			}
 		}
+	}
+	
+	private void clearGraph() {
+		 goodPoints.getData().clear();
+		 badPoints.getData().clear();
+		 line.getData().clear();
+		 Feature1.getData().clear();
+		 Feature2.getData().clear();
+		 welzlCircle.getData().clear();
+		 goodWelzl.getData().clear();
+		 badWelzl.getData().clear();
 	}
 	
 	public BooleanProperty getBProperty(String property) {
@@ -230,68 +279,6 @@ public class ViewModel implements Observer{
 		return LPropertyMap.get(property);
 		
 	}
-//	
-//	
-//	public void bindBooleanProperty() {
-//		
-//	}
-//	
-//	public void bindDoubleProperty() {
-//		
-//	}
-//	
-//	public void bindAileron(StringProperty textProperty) {
-//		textProperty.bind(VM_AileronVal.asString());
-//		
-//	}
-//
-//	public void bindElevator(StringProperty textProperty) {
-//		textProperty.bind(this.VM_ElevatorVal.asString());
-//		
-//	}
-//
-//	public void bindRudder(StringProperty textProperty) {
-//		textProperty.bind(this.VM_RudderVal.asString());
-//		
-//	}
-//	
-//	public void bindRudder(DoubleProperty valueProperty) {
-//		valueProperty.bind(this.VM_RudderVal);		
-//	}
-//
-//	public void bindThrottle(StringProperty textProperty) {
-//		textProperty.bind(this.VM_ThrottleVal.asString());
-//		
-//	}
-//
-//	public void bindThrottle(DoubleProperty valueProperty) {
-//		valueProperty.bind(this.VM_ThrottleVal);
-//	}
-//
-//	public void bindFlightHeight(StringProperty textProperty) {
-//		textProperty.bind(this.VM_FlightHeightVal.asString());
-//		
-//	}
-//
-//	public void bindFlightSpeed(StringProperty textProperty) {
-//		textProperty.bind(this.VM_FlightSpeedVal.asString());
-//		
-//	}
-//
-//	public void bindRoll(StringProperty textProperty) {
-//		textProperty.bind(this.VM_RollVal.asString());
-//		
-//	}
-//
-//	public void bindPitch(StringProperty textProperty) {
-//		textProperty.bind(this.VM_PitchVal.asString());
-//		
-//	}
-//
-//	public void bindYaw(StringProperty textProperty) {
-//		textProperty.bind(this.VM_YawVal.asString());
-//		
-//	}
 
 	public void initialize() {
 		getList("SettingsFileList").set(this.model.getFileSettingsObsList());;
@@ -299,16 +286,22 @@ public class ViewModel implements Observer{
 		getSProperty("LastSettings").set(this.model.getLastSettingsUsed());
 		getSProperty("PlaySpeed").set(""+this.model.getPlaySpeed());
 		getSProperty("SampleRate").set(""+model.getSampleRate());
+		getSProperty("SelectedFeature").set("");
+		getSProperty("AlgoLabel").set("");
 		goodPoints = new XYChart.Series<Number,Number>();
 		badPoints = new XYChart.Series<Number,Number>();
 		line = new XYChart.Series<Number,Number>();
+		Feature1 = new XYChart.Series<Number,Number>();
+		Feature2 = new XYChart.Series<Number,Number>();
+		welzlCircle = new XYChart.Series<>();
+		goodWelzl = new XYChart.Series<>();
+		badWelzl = new XYChart.Series<>();
 	}
 	
 	public void play() {
-//		System.out.println("Play from ViewModel!");
-//		if(!model.getPlayFlag()) {
-//		model.setPlayFlag(true);
-		model.play();
+		model.setRewindFlag(false);
+		if(!model.getPlayFlag())
+			model.play();
 		}
 	
 	public void pause() {
@@ -334,92 +327,35 @@ public class ViewModel implements Observer{
 	public void fastRewind() {
 		model.fastRewind();
 	}
-	
-//	public void bindMaxTimeStep(StringProperty textProperty) {
-//		textProperty.bind(this.VM_MaxTimeStep);
-//		
-//	}
-//
-//	public void bindCurTimeStep(StringProperty textProperty) {
-//		textProperty.bind(VM_StringTimeStep);
-//		
-//	}
-//	public void bindLoadedSettings(StringProperty textProperty) {
-//		textProperty.bind(VM_LoadedSettings);
-//		
-//	}
-//
-//	public void bindAlgorithmSelected(StringProperty textProperty) {
-//		textProperty.bind(VM_AlgorithmSelected);
-//		
-//	}
-//
-//	public void bindTrainFileName(StringProperty textProperty) {
-//		textProperty.bind(VM_TrainFileName);
-//	}
-//
-//	public void bindTestFileName(StringProperty textProperty) {
-//		textProperty.bind(VM_TestFileName);
-//	}
-//
-//	public void bindTimeSlideBar(DoubleProperty valueProperty) {
-//		this.VM_CurTimeStep.bindBidirectional(valueProperty);
-//		
-//	}
-//	public void bindSimulatorCB(BooleanProperty b) {
-//		this.VM_isSimulated.bind(b);
-//		
-//	}
-
-	public int getMaxTimeStep() {
-		//return model.getMaxLines();
-		return 1000;
-	}
 
 	public void newSettingsFile() {
 		model.newSettingsFile();
-		
+		getList("SettingsFileList").set(this.model.getFileSettingsObsList());;
 	}
 	
 	public void openCSVFile() {
 		model.newCSVFile();
 		getList("Features").set(this.model.getFeatureList());
-		//this.model.getFeatureList().forEach((a)->System.out.println(a));
-		//getList("Feature")
 	}
-
-//	public void bindFileSettingsListView(ObjectProperty<ObservableList<String>> itemsProperty) {
-//		itemsProperty.bind(this.VM_SettingsFilesList);
-//		
-//	}
-//	
-//
-//	public void bindAlgoFilesListView(ObjectProperty<ObservableList<String>> itemsProperty) {
-//		itemsProperty.bind(this.VM_AlgoFiles);
-//	}
-//
-//	public void bindFeaturesListView(ObjectProperty<ObservableList<String>> itemsProperty) {
-//		itemsProperty.bind(this.VM_FeaturesList);
-//	}
 	
 	public ObservableList<String> getSavedSettingFileNames() {
-		
 		return model.getFileSettingsObsList();
 	}
 
 	public void selectSettings(String choice) {
 		model.loadSettings(choice);
 		getSProperty("LastSettings").set(choice);
-		
 	}
 
 	public void deleteSettingsFile(String fileName) {
 		model.deleteSettingsFile(fileName);
+		getList("SettingsFileList").set(this.model.getFileSettingsObsList());;
 	}
 	
 
 	public void deleteAlgo(String algoName) {
 		model.deleteAlgoFile(algoName);
+		getList("AlgoFiles").set(this.model.getAlgoList());
 	}
 
 	public ObservableList<String> getFeatureList() {
@@ -427,46 +363,33 @@ public class ViewModel implements Observer{
 	}
 
 	public void featureSelected(String selectedFeature) {
-		getSProperty("SelectedFeature").set(selectedFeature);;
-		model.setSelectedFeature(selectedFeature);
-		
-		//return model.displayGraphsCall(selectedFeature);
-		
+		if ( !getSProperty("AlgoLabel").get().equals("")) {
+			getSProperty("SelectedFeature").set(selectedFeature);
+			model.setSelectedFeature(selectedFeature);			
+		}
+		else
+			model.setAlert("Please choose an algorithm.");
 	}
 	
-	public TimeSeriesAnomalyDetector.GraphStruct getGraphStruct(){
-		return model.displayGraphsCall(model.getSelectedFeature());
-		
-	}
-
 	public ObservableList<String> getAlgorithms() {
 		return model.getAlgoList();
 	}
 
 	public void algoSelected(String selectedItem) {
-		System.out.println(selectedItem);
+		clearGraph();
+		selectedFeatureBool.set(false);
 		model.setSelectedAlgorithm(selectedItem);
 		getSProperty("AlgoLabel").set(selectedItem);
 	}
 
 	public void newAlgoFile() {
 		model.newAlgoFile();
+		getList("AlgoFiles").set(this.model.getAlgoList());
 	}
 
 	public void uploadTestFile() {
 		model.uploadTestFile();
-		
 	}
-	
-
-//	public void bindTabPane(ReadOnlyIntegerProperty selectedIndexProperty) {
-//		VM_TabPane.bind(selectedIndexProperty);	
-//	}
-
-//	public void bindPlaySpeed(StringProperty textProperty) {
-//		textProperty.bindBidirectional(this.VM_PlaySpeed);
-//		
-//	}
 
 	public float getMinValue(String selectedItem) {
 		return model.getMinVal(selectedItem);
@@ -480,24 +403,29 @@ public class ViewModel implements Observer{
 		return badPoints;
 	}
 
+	public Series<Number, Number> getFeature1() {
+		return Feature1;
+	}
+	public Series<Number, Number> getFeature2() {
+		return Feature2;
+	}
 	public Series<Number, Number> getGoodPoints() {
 		return goodPoints;
 	}
 
 	public Series<Number, Number> getLine() {
-		// TODO Auto-generated method stub
 		return line;
 	}
 
+	public Series getWelzlCircle() {
+		return welzlCircle;
+	}
 
+	public Series getBadWelzl() {
+		return badWelzl;
+	}
 
-
-
-
-
-
-
-
-
-
+	public Series getGoodWelzl() {
+		return goodWelzl;
+	}
 }

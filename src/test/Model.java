@@ -38,7 +38,7 @@ import javafx.stage.Stage;
 import test.TimeSeriesAnomalyDetector.GraphStruct;
 
 public class Model extends Observable{
-	//Settings members
+	//Settings membersF
 	static String settingsFolder = "./SettingsFiles/";
 	static String algoFolder = "./AlgoFiles/";
 	String selectedFeature = "";
@@ -56,7 +56,7 @@ public class Model extends Observable{
 	volatile AtomicBoolean rewindFlag;
 	volatile AtomicBoolean playFlag;
 	volatile AtomicBoolean secondPlayFlag;
-	XYChart.Series<Number, Number> goodPoints, badPoints, lineGraph;
+	XYChart.Series<Number, Number> goodPoints, badPoints, lineGraph, Feature1, Feature2;
 	Timer timer = null;
 	String selectedAlgorithm;
 	double playSpeed = 1;
@@ -72,11 +72,13 @@ public class Model extends Observable{
 	int maxTime;
 	GraphStruct struct = null;
 	TimeSeriesAnomalyDetector tsad;
-	
-	
+	int lastTimeStep = 0;
+	String tempFeature;
+	AtomicBoolean corFlag = new AtomicBoolean(false);
+	XYChart.Series welzlCircle, goodWelzl, badWelzl;
 	volatile AtomicBoolean reportFlag;
 	HashMap<Long, String> report;
-	String msg;
+	String msg, algoType;
 	
 	int selectedFeature1, selectedFeature2;
 	float[] feature1, feature2, trimmedFeature1, trimmedFeature2;
@@ -192,34 +194,32 @@ public class Model extends Observable{
 
 	public void play() {
 		if(selectedTS!=null) {
-		//	if(rewindFlag.get())
-		//		rewindFlag.set(false);
-			if(isSimulated.get()) {
-					es.submit(()->{
-						connectToSimulator();
-					});
-				}
+			if(isSimulated.get()) {es.submit(()->{connectToSimulator();});}
+			
 			if(timer==null) {
+				playFlag.set(true);
 				timer = new Timer();
 				timer.scheduleAtFixedRate(new TimerTask() {
 					@Override
 					public void run() {
+						if(lastTimeStep != timeStep && !selectedFeature.equals("")) {
+							redraw();
+						}
 						if(!rewindFlag.get()) {
-							if(timeStep<maxTime-1)
+							if(timeStep<maxTime-1) {
 								setTimeStep(timeStep + 1);
+								lastTimeStep++;
+							}
 							else
 								pause();
 						}
 						else {
-							if(timeStep>0)
+							if(timeStep>0) {
 								setTimeStep(timeStep - 1);
+								lastTimeStep--;
+							}
 							else
 								pause();
-						}
-						if(reportFlag.get()) {
-							String str;
-							if((str=report.get((long)timeStep))!=null)
-								System.out.println(str);
 						}
 					}
 				}, 0, (long)(1000/(playSpeed*sampleRate)));
@@ -238,18 +238,24 @@ public class Model extends Observable{
 
 	public void setSelectedFeature(String selectedFeature) {
 		this.selectedFeature = selectedFeature;
-		System.out.println(this.selectedFeature);
-		struct = this.tsad.display(selectedFeature);
-		System.out.println("AFTER " + this.selectedFeature);
-		if (struct!=null)
+		GraphStruct tempStruct = this.tsad.display(selectedFeature);
+		if (tempStruct!=null ) {
+			struct = tempStruct;
+			tempFeature = selectedFeature;
 			parseAndFill(struct);
-		else 
+		}
+		else {
+			selectedFeature = tempFeature;
 			setAlert("There is no correlated feature for the selected feature.");
+			setChanged();
+			notifyObservers("NoGraph!");
+		}
 	}
 
 	public void pause() {
 		if(timer!=null) {
 			timer.cancel();
+			playFlag.set(false);
 			timer = null;
 		}
 	}
@@ -258,6 +264,7 @@ public class Model extends Observable{
 		if(selectedTS != null) {
 			if(timer!=null) {
 				timer.cancel();
+				playFlag.set(false);
 				timer = null;
 			}
 			timeStep = 0;
@@ -266,14 +273,7 @@ public class Model extends Observable{
 		}
 	}
 	
-	public boolean getSecondPlayFlag() {
-		return secondPlayFlag.get();
-	}
-
-	public void setSecondPlayFlag(boolean b) {
-		this.secondPlayFlag.set(b);
-	}
-
+//	
 	public boolean getPlayFlag() {
 		return playFlag.get();
 	}
@@ -294,8 +294,7 @@ public class Model extends Observable{
 	}
 
 	public void rewind() {
-		//if(!rewindFlag.get())
-			setRewindFlag(true);
+		setRewindFlag(true);
 	}
 
 	public AtomicBoolean getRewindFlag() {
@@ -311,21 +310,14 @@ public class Model extends Observable{
 			setRewindFlag(true);
 		DecimalFormat df = new DecimalFormat("###.##");
 		this.setPlaySpeed(Double.parseDouble(df.format(playSpeed+0.5)));
-		//setChanged();
-		//notifyObservers("PlaySpeed");
-		
 	}
 	
 	private void FillFactory() {
 		Factory.put("Linear-Regression", new SimpleAnomalyDetector());
 		Factory.put("Z-Score", new ZscoreAnomalyDetector());
 		Factory.put("Hybrid", new HybridAnomalyDetector());
-		
 	}
 
-
-	
-	
 	//Reading settings file, if its valid, save it as another file in the system directory.
 	public void saveSettings(String filePath) {
 		Scanner in = null;
@@ -429,7 +421,9 @@ public class Model extends Observable{
 	}
 	
 	public void redraw() {
-		this.parseAndFill(this.struct);
+		lastTimeStep = timeStep;
+		parseAndFill(struct);
+
 	}
 	
 	private void saveAlgo(String path) {
@@ -442,9 +436,7 @@ public class Model extends Observable{
 		}
 		try {
 			in = new Scanner(new FileReader(path));
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
+		} catch (FileNotFoundException e) {}
 		
 		if(!in.hasNextLine()) {
 			System.out.println("Algo class file is empty.");
@@ -533,7 +525,6 @@ public class Model extends Observable{
 			}
 		}
 		featureObsList.addAll(Arrays.asList(regTS.getFeatures()));
-		//featureObsList.forEach((a)->System.out.println(a));
 		timeStep = 0;
 		setChanged();
 		notifyObservers("TrainFile");
@@ -551,7 +542,6 @@ public class Model extends Observable{
 			System.out.println("No file is selected. Try again.");
 			return;
 		}
-		//System.out.println(file.getPath());
 		remember.put("TestFileName", file.getPath());
 		setChanged();
 		notifyObservers("TestFile");
@@ -571,8 +561,7 @@ public class Model extends Observable{
 		File file = chooser.showOpenDialog(new Stage());
 		
 		if (file == null) {
-			System.out.println("File selection error. try again.");
-			newCSVFile();
+			setAlert("File has not been selected. \nPlease try again.");
 			return;
 		}
 		remember.put("TrainFilePath", file.getPath());
@@ -625,8 +614,7 @@ public class Model extends Observable{
 		File file = chooser.showOpenDialog(new Stage());
 
 		if(file == null) {
-			System.out.println("No file is selected. Loading last loaded file.");
-			loadSettings(remember.get("LSU"));
+			setAlert("No file has been selected.");
 			return;
 		}
 		saveSettings(file.getPath());
@@ -687,42 +675,20 @@ public class Model extends Observable{
 			System.out.println("File " + fileName + " has been removed from the system.");
 	}
 	
-	public GraphStruct displayGraphsCall(String selectedFeature) {
-		//System.out.println("From model Str = " + selectedFeature);
-		this.struct = this.tsad.display(selectedFeature);
-		//System.out.println(struct.getStr());
-		System.out.println("test");
-		System.out.println(selectedFeature);
-		parseAndFill(struct);
-		//System.out.println("Test points number is " + struct.getPoints().getData().size());
-//		for (Point p : test.getPoints()) {
-//			System.out.println(p);
-//		}
-//		Series<Number,Number> series = new Series<>();
-		return struct;
-	}
+
 
 	private void parseAndFill(GraphStruct test) {
-		//System.out.println(test.getStr());
 		String[]stringData = struct.getStr().split(",");
+		algoType = stringData[0];
 		switch(stringData[0]) {
 		case "LR":
-			//System.out.println(stringData[0] + " " + stringData[1] + " " + stringData[2]);
 			selectedFeature1 = StatLib.whichIndex(stringData[1], anomalyTS);
 			selectedFeature2 = StatLib.whichIndex(stringData[2], anomalyTS);
 			feature1 = anomalyTS.getData()[selectedFeature1];
 			feature2 = anomalyTS.getData()[selectedFeature2];
 			trimmedFeature1 = StatLib.TrimArr(feature1,this.getTimeStep());
 			trimmedFeature2 = StatLib.TrimArr(feature2, this.getTimeStep());
-			//System.out.println("Feature 1 = " + stringData[1]);
-//			for(int i=0;i<tempFloatsFeature1.length;i++) {
-//				System.out.println(tempFloatsFeature1[i]);
-//			}
-//			System.out.println("Feature 2 = " + stringData[2]);
-//			for(int i=0;i<tempFloatsFeature2.length;i++) {
-//				System.out.println(tempFloatsFeature2[i]);
-//			}
-//			Point[] temp = StatLib.arrToPoints(tempFloatsFeature1, tempFloatsFeature2);
+
 			float min = Float.MAX_VALUE;
 			float max = Float.MIN_VALUE;
 			
@@ -735,85 +701,94 @@ public class Model extends Observable{
 			goodPoints = new XYChart.Series<Number, Number>();
 			badPoints = new XYChart.Series<Number, Number>();
 			lineGraph = new XYChart.Series<Number, Number>();
+			Feature1 = new XYChart.Series<Number, Number>();
+			Feature2 = new XYChart.Series<Number, Number>();
+			
 			lineGraph.getData().add(new XYChart.Data(min,struct.l.f(min)));
 			lineGraph.getData().add(new XYChart.Data(max,struct.l.f(max)));
 			for(int i=0;i<trimmedFeature1.length;i++) {
-				String temp = report.get((long)this.timeStep);
+				String temp = report.get((long)i);
 				if(temp == null || !temp.contains(selectedFeature)) 
 					goodPoints.getData().add(new XYChart.Data(feature1[i],feature2[i]));
 				else
-					badPoints.getData().add(new XYChart.Data(feature1[i],feature2[i]));
-
-
-			
+					badPoints.getData().add(new XYChart.Data(feature1[i],feature2[i]));	
 				
+				Feature1.getData().add(new XYChart.Data(i,feature1[i]));
+				Feature2.getData().add(new XYChart.Data(i,feature2[i]));
 			}
-//			test.setMaxVal(StatLib.findMax(tempFloatsFeature1));
-//			test.setMinVal(StatLib.findMin(tempFloatsFeature1));
-//			break;
+			setChanged();
+			notifyObservers("newGraphLR");
+			break;
 		case "Z":
-			//int featureIdx = Integer.parseInt(stringData[1]);
-//			float[] arr = StatLib.TrimArr(test.getzScores(),this.getTimeStep());
-//			for(int i=0;i<arr.length;i++) {
-//				//System.out.println(arr[i]);
-//				test.getPoints().getData().add(new XYChart.Data<>(i,arr[i]));
-//				test.setMaxVal(this.getTimeStep());
-//			}
+			feature1 = test.getzScores();
+			trimmedFeature1 = StatLib.TrimArr(feature1,this.getTimeStep());
+			
+			goodPoints = new XYChart.Series<Number, Number>();
+			badPoints = new XYChart.Series<Number, Number>();
+			lineGraph = new XYChart.Series<Number, Number>();
+			
+			lineGraph.getData().add(new XYChart.Data(0,test.getThreshold()));
+			lineGraph.getData().add(new XYChart.Data(anomalyTS.getNumOfRows(),test.getThreshold()));
+			
+			for(int i=0;i<trimmedFeature1.length;i++) {
+				String temp = report.get((long)i);
+				if(temp == null || !temp.contains(selectedFeature)) 
+					goodPoints.getData().add(new XYChart.Data(i,feature1[i]));
+				else
+					badPoints.getData().add(new XYChart.Data(i,feature1[i]));	
+			}
+			setChanged();
+			notifyObservers("newGraphZ");
 			break;
 		case "W":
+			selectedFeature1 = StatLib.whichIndex(stringData[1], anomalyTS);
+			selectedFeature2 = StatLib.whichIndex(stringData[2], anomalyTS);
+			feature1 = anomalyTS.getData()[selectedFeature1];
+			feature2 = anomalyTS.getData()[selectedFeature2];
+			trimmedFeature1 = StatLib.TrimArr(feature1,this.getTimeStep());
+			trimmedFeature2 = StatLib.TrimArr(feature2, this.getTimeStep());
+			
+			welzlCircle = new XYChart.Series<>();
+			goodWelzl = new XYChart.Series<>();
+			badWelzl = new XYChart.Series<>();
+		    Circle c = test.c;
+			welzlCircle.getData().add(new XYChart.Data(c.center.x,c.center.y,c.radius));
+			
+			for(int i=0;i<trimmedFeature1.length;i++) {
+				String temp = report.get((long)i);
+				if(temp == null || !temp.contains(selectedFeature)) 
+					goodWelzl.getData().add(new XYChart.Data(feature1[i],feature2[i],3));
+				else
+					badWelzl.getData().add(new XYChart.Data(feature1[i],feature2[i],3));	
+				
+				Feature1.getData().add(new XYChart.Data(i,feature1[i]));
+				Feature2.getData().add(new XYChart.Data(i,feature2[i]));
+			}
+			setChanged();
+			notifyObservers("newGraphW");
 			break;
 		}
-		setChanged();
-		notifyObservers("newGraph");
 	}
 	
 
-//	private void parseAndFill(GraphStruct test) {
-//		//System.out.println(test.getStr());
-//		String[]stringData = test.getStr().split(",");
-//		switch(stringData[0]) {
-//		case "LR":
-//			//System.out.println(stringData[0] + " " + stringData[1] + " " + stringData[2]);
-//			int feature1Idx = StatLib.whichIndex(stringData[1], anomalyTS);
-//			int feature2Idx = StatLib.whichIndex(stringData[2], anomalyTS);
-//			float[] tempFloatsFeature1 = StatLib.TrimArr(anomalyTS.data[feature1Idx],this.getTimeStep());
-//			float[] tempFloatsFeature2 = StatLib.TrimArr(anomalyTS.data[feature2Idx], this.getTimeStep());
-//			//System.out.println("Feature 1 = " + stringData[1]);
-////			for(int i=0;i<tempFloatsFeature1.length;i++) {
-////				System.out.println(tempFloatsFeature1[i]);
-////			}
-////			System.out.println("Feature 2 = " + stringData[2]);
-////			for(int i=0;i<tempFloatsFeature2.length;i++) {
-////				System.out.println(tempFloatsFeature2[i]);
-////			}
-//			Point[] temp = StatLib.arrToPoints(tempFloatsFeature1, tempFloatsFeature2);
-//			for(int i=0;i<temp.length;i++) {
-//				//System.out.println(temp[i].x + "," + temp[i].y);
-//				test.getPoints().getData().add(new XYChart.Data<>(temp[i].x,temp[i].y));
-//				////test.getFeature1Points().getData().add(new XYChart.Data<>(i,temp[i].x));
-//				test.getFeature1Points().getData().add(new XYChart.Data<>(i,temp[i].x));
-//				test.getFeature2Points().getData().add(new XYChart.Data<>(i,temp[i].y));
-//			}
-//			test.setMaxVal(StatLib.findMax(tempFloatsFeature1));
-//			test.setMinVal(StatLib.findMin(tempFloatsFeature1));
-//			break;
-//		case "Z":
-//			//int featureIdx = Integer.parseInt(stringData[1]);
-//			float[] arr = StatLib.TrimArr(test.getzScores(),this.getTimeStep());
-//			for(int i=0;i<arr.length;i++) {
-//				//System.out.println(arr[i]);
-//				test.getPoints().getData().add(new XYChart.Data<>(i,arr[i]));
-//				test.setMaxVal(this.getTimeStep());
-//			}
-//			break;
-//		case "W":
-//			break;
-//		}
-//		
-//	}
-	
 	/////GETTERS & SETTERS
 	
+	public float[] getTrimmedFeature1() {
+		return trimmedFeature1;
+	}
+
+	public void setTrimmedFeature1(float[] trimmedFeature1) {
+		this.trimmedFeature1 = trimmedFeature1;
+	}
+
+	public float[] getTrimmedFeature2() {
+		return trimmedFeature2;
+	}
+
+	public void setTrimmedFeature2(float[] trimmedFeature2) {
+		this.trimmedFeature2 = trimmedFeature2;
+	}
+
 	public int getTimeStep() {
 		return timeStep;
 	}
@@ -823,7 +798,7 @@ public class Model extends Observable{
 	}
 	
 	public void setMaxTime(int numberOfRows) {
-		maxTime = numberOfRows;
+		maxTime = numberOfRows-1;
 		setChanged();
 		notifyObservers("MaxTime");
 	}
@@ -839,15 +814,10 @@ public class Model extends Observable{
 		RollVal = Math.floor(regTS.getData()[map.get("roll").getCulNumber()][timeStep]*100)/100;
 		PitchVal = Math.floor(regTS.getData()[map.get("pitch").getCulNumber()][timeStep]*100)/100;
 		YawVal = Math.floor(regTS.getData()[map.get("yaw").getCulNumber()][timeStep]*100)/100;		
-		setChanged();
-		notifyObservers("TimeStep");
-	}
-	
-	public void setUserTimeStep(int timeStep) {
-		this.setTimeStep(timeStep);
-		if(this.selectedFeature!="")
-			this.parseAndFill(this.struct);
-
+		if(playFlag.get()) {
+			setChanged();
+			notifyObservers("TimeStep");
+		}
 	}
 	
 	public ObservableList<String> getFeatureList() {
@@ -857,9 +827,25 @@ public class Model extends Observable{
 		return selectedAlgorithm;
 	}
 
-
+	public void clearSeries() {
+		if (goodPoints!= null)
+			goodPoints.getData().clear();
+		
+		if (badPoints!= null)
+			badPoints.getData().clear();
+		
+		if (lineGraph!= null)
+			lineGraph.getData().clear();
+		
+		if (Feature1!= null)
+			Feature1.getData().clear();
+		
+		if (Feature2!= null)
+			Feature2.getData().clear();
+	}
 	public void setSelectedAlgorithm(String selectedAlgorithm) {
-		System.out.println(selectedAlgorithm);
+		clearSeries();
+		selectedFeature = "";
 		if(anomalyTS != null && regTS != null) {
 			if(selectedAlgorithm != null) {
 				if (!this.selectedAlgorithm.equals(selectedAlgorithm)) {
@@ -868,24 +854,27 @@ public class Model extends Observable{
 						if(tsad == null) {
 							URLClassLoader urlClassLoader = null;
 							try {
+								System.out.println("Are we here?");
 								urlClassLoader = URLClassLoader.newInstance(new URL[] {
-										new URL("file://"+algoFolder+selectedAlgorithm)
+										new URL("file://C:/College/eclipse/PTM2Project/PTM2ProjectMerged/AlgoFiles")
 										});
 								} catch (MalformedURLException e1) {}
 							try {
-								Class<?> tsad=urlClassLoader.loadClass(selectedAlgorithm);
-								} catch (ClassNotFoundException e) {}
+								System.out.println("Are we here?2 test." +selectedAlgorithm.substring(0,selectedAlgorithm.length()-6));
+								Class<?> c=urlClassLoader.loadClass("test."+selectedAlgorithm.substring(0,selectedAlgorithm.length()-6));
+								System.out.println("Are we here?3");
+								tsad = (TimeSeriesAnomalyDetector) c.newInstance();
+								} catch (ClassNotFoundException e) {System.out.println(e.getMessage());} catch (InstantiationException e) {System.out.println(e.getMessage());} catch (IllegalAccessException e) {System.out.println(e.getMessage());}
 							}
 						tsad.learnNormal(regTS);
 						setAnomalyReport(tsad.detect(anomalyTS));
-						System.out.println("yaniv");
 						});
 					}
 				this.selectedAlgorithm = selectedAlgorithm;
 				}else 
-					setAlert("please choose algorithem");
+					setAlert("Please choose an Algorithem yaniv");
 			}else
-				setAlert("please upload train/test file");
+				setAlert("Anomaly detection requires both train and test files.");
 		}
 
 	public ObservableList<String> getAlgoList() {
@@ -999,7 +988,6 @@ public class Model extends Observable{
 
 	private String getFileNameFromPath(String path) {
 		String[] tokens = path.split("\\\\");
-		System.out.println(path);
 		return tokens[tokens.length-1];
 	}
 
@@ -1089,62 +1077,57 @@ public class Model extends Observable{
 	}
 
 	public Data<Number, Number> getPoint() {
-		return new Data<Number,Number>(feature1[timeStep],feature2[timeStep]);
+		if(algoType.equals("LR"))
+			return new Data<Number,Number>(feature1[timeStep],feature2[timeStep]);
+		return new Data<Number,Number>(timeStep,feature1[timeStep]);
 	}
 
 	public XYChart.Series<Number, Number> getLine() {
 		return lineGraph;
 	}
+
+
+
+	public Data<Number, Number> getFeaturePoint(int num) {
+		float value;
+		if (num == 1)
+			value = feature1[this.timeStep];
+		else if(num ==2)
+			value = feature2[this.timeStep];
+		else
+			return null;
+		return new Data(this.timeStep,value);
+	}
+
+	public XYChart.Series<Number, Number> getFeatureData(int i) {
+		if (i== 1)
+			return Feature1;
+		else if (i==2)
+			return Feature2;
+		else
+			return null;
+	}
+
+	public boolean getCorFlag() {
+		return corFlag.get();
+	}
+
+	public XYChart.Series getGoodWelzel() {
+		// TODO Auto-generated method stub
+		return goodWelzl;
+	}
+
+	public XYChart.Series getBadWelzl() {
+		// TODO Auto-generated method stub
+		return badWelzl;
+	}
+
+	public XYChart.Series getWelzlCircle() {
+		return welzlCircle;
+	}
+
+	public Object getWelslPoint() {
+		return new XYChart.Data(feature1[timeStep],feature2[timeStep],3);
+	}
 	
 }
-
-//
-//public void play1() {
-//	setStopFlag(false);
-//	System.out.println("Play from Model! playflag = " + playFlag.get() + "StopFlag = " + stopFlag.get());
-//	if(isSimulated.get()) {
-//	//	System.out.println("After the check!");
-//		es.submit(()->{
-//			connectToSimulator();
-//		});
-//	}
-//
-//	es.submit(()->{
-//		if(secondPlayFlag.get()) {
-//			setRewindFlag(false);
-//			return;
-//		}
-//		if(regTS==null) {
-//			System.out.println("Please upload a CSV File.");
-//			return;
-//		}
-//		while(!stopFlag.get() && playFlag.get()) {//NEXTTT
-//			setSecondPlayFlag(true);
-//			if(rewindFlag.get()==false && timeStep<regTS.getNumOfRows()-1)
-//				setTimeStep(timeStep+1);
-//			else if(timeStep>0)
-//				setTimeStep(timeStep-1);
-//			else
-//				pause();
-//			try {
-//				Thread.currentThread();
-//				Thread.sleep((long) (1000/(sampleRate*playSpeed)));
-//			} catch (InterruptedException e) {}
-//		}
-//	});
-//}
-//
-////	public void pause1() {
-//System.out.println("Hello from pause model");
-//es.submit(()-> {
-//	setStopFlag(true);
-//});
-//}
-
-//public void stop1() {
-//	this.setStopFlag(true);
-//	this.setTimeStep(0);	
-//	this.setPlaySpeed(1.0);
-//	setChanged();
-//	notifyObservers("PlaySpeed");
-//}

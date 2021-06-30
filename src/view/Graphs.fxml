@@ -34,7 +34,7 @@
           <NumberAxis lowerBound="-100.0" minorTickVisible="false" side="LEFT" tickLabelsVisible="false" tickMarkVisible="false" />
         </yAxis>
       </BubbleChart>
-      <LineChart fx:id="LineChart" alternativeRowFillVisible="false" animated="false" horizontalGridLinesVisible="false" horizontalZeroLineVisible="false" layoutX="6.200000002980232" layoutY="140.5" prefHeight="200.0" prefWidth="225.0" verticalGridLinesVisible="false" verticalZeroLineVisible="false">
+      <LineChart fx:id="LineChart" alternativeColumnFillVisible="true" alternativeRowFillVisible="false" horizontalGridLinesVisible="false" horizontalZeroLineVisible="false" layoutX="6.200000002980232" layoutY="140.5" prefHeight="200.0" prefWidth="225.0" verticalGridLinesVisible="false" verticalZeroLineVisible="false">
          <xAxis>
             <NumberAxis animated="false" forceZeroInRange="false" minorTickVisible="false" side="BOTTOM" tickLabelsVisible="false" tickMarkVisible="false" fx:id="xAxis" />
          </xAxis>

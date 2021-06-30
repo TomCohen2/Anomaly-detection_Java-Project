@@ -82,7 +82,7 @@ public class ZscoreAnomalyDetector implements TimeSeriesAnomalyDetector{
 		GraphStruct ret = new GraphStruct();
 		int index = StatLib.whichIndex(colName, test);
 		float curTX = tX[index];
-		ret.setL(new Line(1f,curTX));
+		ret.setThreshold(curTX);
 		ret.setzScores(zScores[index]);
 		ret.setStr("Z,"+colName);
 		return ret;

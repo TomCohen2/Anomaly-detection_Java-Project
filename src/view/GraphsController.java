@@ -31,34 +31,61 @@ public class GraphsController {
 	XYChart.Series<Number, Number> goodPoints = new XYChart.Series<Number,Number>();
 	XYChart.Series<Number, Number> badPoints = new XYChart.Series<Number,Number>();
 	XYChart.Series<Number, Number> line = new XYChart.Series<Number,Number>();
-
+	XYChart.Series<Number, Number> Feature1 = new XYChart.Series<Number,Number>();
+	XYChart.Series<Number, Number> Feature2 = new XYChart.Series<Number,Number>();
+	XYChart.Series welzlCircle = new XYChart.Series<>();
+	XYChart.Series goodWelzl = new XYChart.Series<>();
+	XYChart.Series badWelzl = new XYChart.Series<>();
 	
 	Runnable paintCircle;
 	
 	public void zScoreView() {
-		Feature1LC.visibleProperty().set(false);
-		Feature2LC.visibleProperty().set(false);
-		bubbleChart.visibleProperty().set(false);
-		LineChart.visibleProperty().set(true);
+		LineChart.setId("Z");
+		if(!bubbleChart.getData().isEmpty())
+			bubbleChart.getData().removeAll(welzlCircle, goodWelzl, badWelzl);
+		if(!LineChart.getData().isEmpty()) {
+			LineChart.getData().removeAll(line,goodPoints,badPoints);
+		}
+		LineChart.getData().addAll(line,goodPoints,badPoints);
 	}
 	
 	public void welzlView() {
-		LineChart.visibleProperty().set(false);
-		Feature1LC.visibleProperty().set(true);
-		Feature2LC.visibleProperty().set(true);
-		bubbleChart.visibleProperty().set(true);
+		bubbleChart.setId("W");
+		Feature1LC.setId("LR");
+		Feature2LC.setId("LR");
+		if(!LineChart.getData().isEmpty()) {
+			LineChart.getData().removeAll(line,goodPoints,badPoints);
+		}
+		if(!bubbleChart.getData().isEmpty())
+			bubbleChart.getData().removeAll(welzlCircle,goodWelzl,badWelzl);
+		if(!Feature1LC.getData().isEmpty())
+			Feature1LC.getData().removeAll(Feature1);
+		if(!Feature2LC.getData().isEmpty())
+			Feature2LC.getData().removeAll(Feature2);
+		bubbleChart.getData().addAll(welzlCircle,goodWelzl,badWelzl);
+		LineChart.getData().addAll(line,goodPoints,badPoints);
+		Feature1LC.getData().addAll(Feature1);
+		Feature2LC.getData().addAll(Feature2);
 	}
 	
 	public void linearView() {
-		System.out.println("YANIV GADOL");
+		LineChart.setId("LR");
+		Feature1LC.setId("LR");
+		Feature2LC.setId("LR");
+		if(!LineChart.getData().isEmpty())
+			LineChart.getData().removeAll(line,goodPoints,badPoints);
+		if(!Feature1LC.getData().isEmpty())
+			Feature1LC.getData().removeAll(Feature1);
+		if(!Feature2LC.getData().isEmpty())
+			Feature2LC.getData().removeAll(Feature2);
+		if(!bubbleChart.getData().isEmpty())
+			bubbleChart.getData().removeAll(welzlCircle, goodWelzl, badWelzl);
 		LineChart.getData().addAll(line,goodPoints,badPoints);
+		Feature1LC.getData().addAll(Feature1);
+		Feature2LC.getData().addAll(Feature2);
 		LineChart.setCreateSymbols(true);
 //		Feature1LC.setCreateSymbols(false);
 //		graphs.controller.Feature2LC.setCreateSymbols(false);
-		bubbleChart.visibleProperty().set(false);
-		LineChart.visibleProperty().set(true);
-		Feature1LC.visibleProperty().set(true);
-		Feature2LC.visibleProperty().set(true);
 	}
 	
 	void paint() {
@@ -71,7 +98,12 @@ public class GraphsController {
 			LineChart.getData().add(series);
 	}
 	
-
+	public void clearSeries() {
+		goodPoints.getData().clear();
+		badPoints.getData().clear();
+		line.getData().clear();
+	}
+	
 	public void removeFromLineChart() {
 		if (LineChart.getData() != null)
 			LineChart.getData().clear();
@@ -116,15 +148,50 @@ public class GraphsController {
 	}
 	
 	void bindGoodPoints(XYChart.Series<Number, Number> data) {
-		goodPoints.dataProperty().bind(data.dataProperty());
+		goodPoints.dataProperty().bindBidirectional(data.dataProperty());
 	}
 	
 	void bindBadPoints(XYChart.Series<Number, Number> data) {
-		badPoints.dataProperty().bind(data.dataProperty());
+		badPoints.dataProperty().bindBidirectional(data.dataProperty());
 	}
 	
 	void bindLine(XYChart.Series<Number, Number> data) {
-		line.dataProperty().bind(data.dataProperty());
+		line.dataProperty().bindBidirectional(data.dataProperty());
 	}
+	
+	void bindWelzlCircle(XYChart.Series data) {
+		welzlCircle.dataProperty().bindBidirectional(data.dataProperty());
+	}
+	
+	void bindBadWelzl(XYChart.Series data) {
+		badWelzl.dataProperty().bindBidirectional(data.dataProperty());
+	}
+	
+	void bindGoodWelzl(XYChart.Series data) {
+		goodWelzl.dataProperty().bindBidirectional(data.dataProperty());
+	}
+	
+	void bindFeature1(XYChart.Series<Number, Number> data) {
+		Feature1.dataProperty().bindBidirectional(data.dataProperty());
+	}
+	
+	void bindFeature2(XYChart.Series<Number, Number> data) {
+		Feature2.dataProperty().bindBidirectional(data.dataProperty());
+	}
+	
+	void bindLineChartVis(BooleanProperty bol) {
+		LineChart.visibleProperty().bind(bol);
+	}
+	
+	void bindBubbleChartVis(BooleanProperty bol) {
+		bubbleChart.visibleProperty().bind(bol);
+	}
+	void bindFeature1LCVis(BooleanProperty bol) {
+		Feature1LC.visibleProperty().bind(bol);
+	}
+	void bindFeature2LCVis(BooleanProperty bol) {
+		Feature2LC.visibleProperty().bind(bol);
+	}
+
 	
 }
